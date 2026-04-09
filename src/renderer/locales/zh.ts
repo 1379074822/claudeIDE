@@ -1,0 +1,151 @@
+import { en } from './en'
+
+export const zh: typeof en = {
+  // General
+  language: '语言',
+  languageEn: '英文',
+  languageZh: '中文（简体）',
+
+  // TitleBar
+  noProject: '未打开项目',
+  noModel: '未选择模型',
+  serverMode: '服务器模式',
+  apiMode: 'API 模式',
+  disconnected: '已断开',
+  starting: '启动中...',
+  serverOff: '服务器已关闭',
+  noApiKey: '未设置 API Key',
+  openFolder: '打开文件夹',
+
+  // StatusBar
+  server: '服务器',
+  api: 'API',
+
+  // Permission labels (StatusBar)
+  permAsk: '询问',
+  permEdits: '编辑',
+  permPlan: '计划',
+  permBypass: '跳过',
+  permAuto: '自动',
+
+  // WelcomePage
+  welcomeSubtitle: 'AI 驱动的编程助手，直接集成在 IDE 中',
+  openFolderBtn: '打开文件夹',
+  recentProjects: '最近项目',
+  loading: '加载中...',
+  noRecentProjects: '暂无最近项目，打开文件夹开始使用。',
+  tipChat: '使用聊天面板向 Claude 询问代码相关问题',
+  tipTerminal: 'Claude 可以运行命令、编辑文件并搜索代码库',
+  tipClaudeMd: '添加 CLAUDE.md 文件为项目提供专属指令',
+
+  // Chat
+  permissionRequest: '权限请求',
+  deny: '拒绝',
+  allow: '允许',
+  newChat: '新建聊天',
+  askPlaceholder: '向 Claude 提问... (Enter=发送, Shift+Enter=换行, 可粘贴图片)',
+  configureFirst: '请先配置连接',
+  askClaude: '向 Claude 询问任何代码问题',
+  configureConnection: '请在设置中配置连接',
+  switchMode: '切换模式',
+  switchModel: '切换模型',
+  attachImage: '附加图片',
+  modeAsk: '提问',
+  modeEdit: '编辑',
+  modePlan: '计划',
+  modeAskDesc: '仅聊天',
+  modeEditDesc: '修改文件',
+  modePlanDesc: '先制定计划',
+  explainFile: '解释此文件',
+  findBugs: '查找 Bug',
+  addTypes: '添加 TypeScript 类型',
+  writeTests: '编写测试',
+  notConnected: '未连接到 Claude 服务器，请检查服务器状态。',
+  setApiKey: '请在左侧栏的设置中填写 API Key。',
+  connecting: '连接中...',
+
+  // Risk levels
+  highRisk: '高风险',
+  mediumRisk: '中等',
+  lowRisk: '低风险',
+
+  // Settings
+  settingsGeneral: '通用',
+  settingsHooks: 'Hooks',
+  settingsMcp: 'MCP',
+  settingsClaudeMd: 'CLAUDE.md',
+  settingsConnection: '连接状态',
+  settingsTheme: '主题',
+  settingsApiConfig: 'API 配置',
+  settingsApiKey: 'API Key',
+  settingsBaseUrl: 'Base URL',
+  settingsPermissionMode: '权限模式',
+  settingsModels: '模型',
+  settingsLanguage: '界面语言',
+  serverModeLabel: '服务器模式',
+  apiModeLabel: 'API 模式',
+  disconnectedLabel: '已断开',
+  statusLabel: '状态',
+  directApi: '通过 Anthropic SDK 直接调用 API',
+  darkTheme: '深色主题',
+  lightTheme: '浅色主题',
+  addModel: '添加模型',
+  modelName: '名称（如 GPT-4）',
+  modelId: '模型 ID（如 gpt-4）',
+  apiKeyOptional: 'API Key（可选）',
+  baseUrlOptional: 'Base URL（可选）',
+  descriptionOptional: '描述（可选）',
+  customApi: '自定义 API',
+
+  // Connection mode
+  connModeTitle: '请求模式',
+  connServer: '服务器模式',
+  connServerDesc: '通过 claude --server WebSocket 连接（支持工具调用）',
+  connApi: 'API 模式',
+  connApiDesc: '通过 Anthropic SDK 直接调用 API（流式输出）',
+  connSwitching: '切换中...',
+
+  // Permission mode descriptions
+  permDefaultLabel: '默认',
+  permDefaultDesc: '每次工具执行前询问',
+  permAcceptEditsLabel: '接受编辑',
+  permAcceptEditsDesc: '仅在文件修改时询问',
+  permPlanLabel: '计划模式',
+  permPlanDesc: '先制定计划，执行前询问',
+  permBypassLabel: '跳过全部',
+  permBypassDesc: '允许所有工具无需询问',
+  permDontAskLabel: '不再询问',
+  permDontAskDesc: '永不提示权限确认',
+
+  // App / CommandPalette
+  cmdOpenFolder: '打开文件夹',
+  cmdToggleSidebar: '切换侧边栏',
+  cmdToggleChat: '切换聊天面板',
+  cmdShowExplorer: '显示资源管理器',
+  cmdShowSearch: '显示搜索',
+  cmdShowSessions: '显示会话',
+  cmdShowSettings: '显示设置',
+  cmdThemeMocha: '主题：Catppuccin Mocha',
+  cmdThemeLatte: '主题：Catppuccin Latte',
+  cmdThemeAyu: '主题：Ayu Dark',
+  cmdClearChat: '清空当前聊天',
+  catFile: '文件',
+  catView: '视图',
+  catTheme: '主题',
+  catChat: '聊天',
+
+  // Sidebar panel hints
+  search: '搜索',
+  searchHint: '向 Claude 询问以搜索代码库',
+
+  // FileTree context menu
+  ctxOpenFile: '打开文件',
+  ctxCopyPath: '复制路径',
+  ctxCopyRelPath: '复制相对路径',
+  ctxRevealExplorer: '在资源管理器中显示',
+  ctxNewFile: '新建文件',
+  ctxNewFolder: '新建文件夹',
+  ctxRename: '重命名',
+  ctxDelete: '删除',
+  ctxSendToChat: '发送到聊天',
+}
