@@ -1,0 +1,179 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #6c7086;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 11px;
+  color: #6c7086;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  padding: 6px 8px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 4px;
+  color: #cdd6f4;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #cba6f7;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #313244;
+  border-radius: 4px;
+  color: #a6adc8;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.addBtn:hover {
+  background: #cba6f7;
+  color: #1e1e2e;
+}
+
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 6px;
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px;
+  background: #cba6f7;
+  color: #1e1e2e;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:hover {
+  opacity: 0.85;
+}
+
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modelItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  gap: 8px;
+}
+
+.modelInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modelName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.modelId {
+  font-size: 11px;
+  color: #6c7086;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modelDesc {
+  font-size: 10px;
+  color: #45475a;
+}
+
+.modelBadge {
+  display: inline-block;
+  font-size: 9px;
+  color: #a6e3a1;
+  background: #a6e3a11a;
+  border: 1px solid #a6e3a133;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: #45475a;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.deleteBtn:hover {
+  color: #f38ba8;
+  background: #f38ba81a;
+}
