@@ -1,0 +1,186 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  color: #cdd6f4;
+}
+
+.header {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a6adc8;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+}
+
+.inputs {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+}
+
+.inputRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 8px;
+  color: #585b70;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 4px;
+  color: #cdd6f4;
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.inputRow .input {
+  padding-left: 26px;
+  padding-right: 24px;
+}
+
+.input:focus {
+  border-color: #cba6f7;
+}
+
+.input::placeholder {
+  color: #45475a;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #585b70;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.clearBtn:hover {
+  color: #cdd6f4;
+}
+
+.searchBtn {
+  background: #cba6f7;
+  color: #1e1e2e;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.searchBtn:disabled {
+  background: #313244;
+  color: #585b70;
+  cursor: default;
+}
+
+.summary {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: #585b70;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+}
+
+.results {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.fileGroup {
+  border-bottom: 1px solid #181825;
+}
+
+.fileHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  background: #1e1e2e;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fileHeader:hover {
+  background: #252535;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.fileName {
+  flex: 1;
+  color: #89b4fa;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matchCount {
+  background: #313244;
+  color: #a6adc8;
+  font-size: 10px;
+  padding: 0 5px;
+  border-radius: 8px;
+}
+
+.matchList {
+  background: #181825;
+}
+
+.matchItem {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 12px 3px 20px;
+  cursor: pointer;
+  color: #a6adc8;
+}
+
+.matchItem:hover {
+  background: #252535;
+  color: #cdd6f4;
+}
+
+.lineNum {
+  color: #585b70;
+  font-size: 11px;
+  min-width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.matchText {
+  font-family: monospace;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
