@@ -1,0 +1,397 @@
+/* ============================================================
+   Settings Panel Styles
+   ============================================================ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Tab bar */
+.tabBar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+  overflow-x: auto;
+  background: #11111b;
+}
+
+.tab {
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6c7086;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.tab:hover {
+  color: #a6adc8;
+}
+
+.tabActive {
+  color: #cba6f7;
+  border-bottom-color: #cba6f7;
+}
+
+/* Tab content */
+.tabContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* Shared form styles */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #6c7086;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  color: #6c7086;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  padding: 6px 8px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 4px;
+  color: #cdd6f4;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #cba6f7;
+}
+
+.textarea {
+  composes: input;
+  resize: vertical;
+  min-height: 60px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.select {
+  composes: input;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236c7086' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #a6adc8;
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox"] {
+  accent-color: #cba6f7;
+}
+
+/* Buttons */
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #313244;
+  border-radius: 4px;
+  color: #a6adc8;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: none;
+}
+
+.addBtn:hover {
+  background: #cba6f7;
+  color: #1e1e2e;
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px;
+  background: #cba6f7;
+  color: #1e1e2e;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  border: none;
+}
+
+.saveBtn:hover {
+  opacity: 0.85;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dangerBtn {
+  composes: saveBtn;
+  background: #f38ba8;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: #45475a;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.deleteBtn:hover {
+  color: #f38ba8;
+  background: #f38ba81a;
+}
+
+/* Card list */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  gap: 8px;
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.cardDetail {
+  font-size: 11px;
+  color: #6c7086;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardDesc {
+  font-size: 10px;
+  color: #45475a;
+}
+
+/* Badge / Tag */
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 6px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeCommand { color: #f9e2af; background: #f9e2af1a; }
+.badgePrompt  { color: #cba6f7; background: #cba6f71a; }
+.badgeHttp    { color: #fab387; background: #fab3871a; }
+.badgeAgent   { color: #a6e3a1; background: #a6e3a11a; }
+.badgeStdio   { color: #89b4fa; background: #89b4fa1a; }
+.badgeSse     { color: #f5c2e7; background: #f5c2e71a; }
+
+/* Add form panel */
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* Scope switcher */
+.scopeSwitch {
+  display: flex;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #313244;
+  margin-bottom: 8px;
+}
+
+.scopeBtn {
+  flex: 1;
+  padding: 5px 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: #6c7086;
+  background: #1e1e2e;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  border: none;
+}
+
+.scopeBtn:hover {
+  color: #a6adc8;
+}
+
+.scopeBtnActive {
+  color: #cba6f7;
+  background: #313244;
+}
+
+/* Permission mode radio group */
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radioItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.radioItem:hover {
+  background: #1e1e2e;
+}
+
+.radioItemActive {
+  background: #cba6f71a;
+}
+
+.radioLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.radioDesc {
+  font-size: 10px;
+  color: #6c7086;
+}
+
+/* Model list items */
+.modelItem {
+  composes: card;
+}
+
+.modelBadge {
+  display: inline-block;
+  font-size: 9px;
+  color: #a6e3a1;
+  background: #a6e3a11a;
+  border: 1px solid #a6e3a133;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 12px;
+  color: #45475a;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* CLAUDE.md editor */
+.editorWrapper {
+  flex: 1;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.editorFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 11px;
+  color: #585b70;
+}
+
+.savedIndicator {
+  color: #a6e3a1;
+}
