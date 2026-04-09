@@ -1,0 +1,230 @@
+.panel {
+  border: 1px solid #313244;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: #11111b;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #181825;
+  font-size: 11px;
+  color: #a6adc8;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.header:hover {
+  background: #1e1e2e;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.headerTitle {
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.headerCount {
+  background: #313244;
+  color: #a6adc8;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.headerRunning {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #f9e2af;
+  font-size: 10px;
+}
+
+.headerChevron {
+  color: #585b70;
+  display: flex;
+  align-items: center;
+}
+
+.list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.call {
+  border-bottom: 1px solid #1e1e2e;
+}
+
+.call:last-child {
+  border-bottom: none;
+}
+
+.callRunning {
+  border-left: 2px solid #f9e2af;
+}
+
+.callHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+  font-size: 12px;
+}
+
+.callHeader:hover {
+  background: #181825;
+}
+
+.callIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.callName {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.callSummary {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  color: #585b70;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Status badges */
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.badgeDone {
+  color: #a6e3a1;
+  background: #a6e3a10d;
+}
+
+.badgeRunning {
+  color: #f9e2af;
+  background: #f9e2af0d;
+}
+
+.badgeError {
+  color: #f38ba8;
+  background: #f38ba80d;
+}
+
+.badgePending {
+  color: #585b70;
+  background: #585b700d;
+}
+
+.expand {
+  color: #585b70;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.callBody {
+  background: #0d0d17;
+  border-top: 1px solid #1e1e2e;
+}
+
+.section {
+  padding: 6px 10px;
+}
+
+.section + .section {
+  border-top: 1px solid #1e1e2e;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: #45475a;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.code {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  color: #a6adc8;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+/* Terminal style for bash */
+.terminal {
+  background: #0a0a12;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.terminalText {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11.5px;
+  color: #a6e3a1;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.terminalOutput {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  color: #bac2de;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.truncated {
+  padding: 4px 10px;
+  font-size: 10px;
+  color: #585b70;
+  font-style: italic;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
