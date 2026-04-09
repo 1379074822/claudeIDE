@@ -1,0 +1,151 @@
+export const en = {
+  // General
+  language: 'Language',
+  languageEn: 'English',
+  languageZh: 'Chinese (Simplified)',
+
+  // TitleBar
+  noProject: 'No Project',
+  noModel: 'No model',
+  serverMode: 'Server Mode',
+  apiMode: 'API Mode',
+  disconnected: 'Disconnected',
+  starting: 'Starting...',
+  serverOff: 'Server Off',
+  noApiKey: 'No API Key',
+  openFolder: 'Open Folder',
+
+  // StatusBar
+  server: 'Server',
+  api: 'API',
+
+  // Permission labels (StatusBar)
+  permAsk: 'Ask',
+  permEdits: 'Edits',
+  permPlan: 'Plan',
+  permBypass: 'Bypass',
+  permAuto: 'Auto',
+
+  // WelcomePage
+  welcomeSubtitle: 'AI-powered coding, right in your IDE',
+  openFolderBtn: 'Open Folder',
+  recentProjects: 'Recent Projects',
+  loading: 'Loading...',
+  noRecentProjects: 'No recent projects. Open a folder to get started.',
+  tipChat: 'Use the chat panel to ask Claude about your code',
+  tipTerminal: 'Claude can run commands, edit files, and search your codebase',
+  tipClaudeMd: 'Add a CLAUDE.md to give project-specific instructions',
+
+  // Chat
+  permissionRequest: 'Permission Request',
+  deny: 'Deny',
+  allow: 'Allow',
+  newChat: 'New chat',
+  askPlaceholder: 'Ask Claude... (Enter=send, Shift+Enter=newline, paste images)',
+  configureFirst: 'Configure connection first',
+  askClaude: 'Ask Claude anything about your code',
+  configureConnection: 'Configure connection in Settings',
+  switchMode: 'Switch mode',
+  switchModel: 'Switch model',
+  attachImage: 'Attach image',
+  modeAsk: 'Ask',
+  modeEdit: 'Edit',
+  modePlan: 'Plan',
+  modeAskDesc: 'Chat only',
+  modeEditDesc: 'Modify files',
+  modePlanDesc: 'Plan first',
+  explainFile: 'Explain this file',
+  findBugs: 'Find bugs',
+  addTypes: 'Add TypeScript types',
+  writeTests: 'Write tests',
+  notConnected: 'Not connected to Claude server. Check server status.',
+  setApiKey: 'Please set your API key in Settings (left sidebar).',
+  connecting: 'Connecting...',
+
+  // Risk levels
+  highRisk: 'High Risk',
+  mediumRisk: 'Medium',
+  lowRisk: 'Low Risk',
+
+  // Settings
+  settingsGeneral: 'General',
+  settingsHooks: 'Hooks',
+  settingsMcp: 'MCP',
+  settingsClaudeMd: 'CLAUDE.md',
+  settingsConnection: 'Connection',
+  settingsTheme: 'Theme',
+  settingsApiConfig: 'API Configuration',
+  settingsApiKey: 'API Key',
+  settingsBaseUrl: 'Base URL',
+  settingsPermissionMode: 'Permission Mode',
+  settingsModels: 'Models',
+  settingsLanguage: 'Language',
+  serverModeLabel: 'Server Mode',
+  apiModeLabel: 'API Mode',
+  disconnectedLabel: 'Disconnected',
+  statusLabel: 'Status',
+  directApi: 'Direct API calls via Anthropic SDK',
+  darkTheme: 'Dark theme',
+  lightTheme: 'Light theme',
+  addModel: 'Add Model',
+  modelName: 'Name (e.g. GPT-4)',
+  modelId: 'Model ID (e.g. gpt-4)',
+  apiKeyOptional: 'API Key (optional)',
+  baseUrlOptional: 'Base URL (optional)',
+  descriptionOptional: 'Description (optional)',
+  customApi: 'Custom API',
+
+  // Connection mode
+  connModeTitle: 'Request Mode',
+  connServer: 'Server',
+  connServerDesc: 'Connect via claude --server WebSocket (supports tools)',
+  connApi: 'API',
+  connApiDesc: 'Direct API calls via Anthropic SDK (streaming)',
+  connSwitching: 'Switching...',
+
+  // Permission mode descriptions
+  permDefaultLabel: 'Default',
+  permDefaultDesc: 'Ask before each tool execution',
+  permAcceptEditsLabel: 'Accept Edits',
+  permAcceptEditsDesc: 'Only ask for file modifications',
+  permPlanLabel: 'Plan Mode',
+  permPlanDesc: 'Plan first, ask before executing',
+  permBypassLabel: 'Bypass All',
+  permBypassDesc: 'Allow all tools without asking',
+  permDontAskLabel: "Don't Ask",
+  permDontAskDesc: 'Never prompt for permissions',
+
+  // App / CommandPalette
+  cmdOpenFolder: 'Open Folder',
+  cmdToggleSidebar: 'Toggle Sidebar',
+  cmdToggleChat: 'Toggle Chat Panel',
+  cmdShowExplorer: 'Show Explorer',
+  cmdShowSearch: 'Show Search',
+  cmdShowSessions: 'Show Sessions',
+  cmdShowSettings: 'Show Settings',
+  cmdThemeMocha: 'Theme: Catppuccin Mocha',
+  cmdThemeLatte: 'Theme: Catppuccin Latte',
+  cmdThemeAyu: 'Theme: Ayu Dark',
+  cmdClearChat: 'Clear Current Chat',
+  catFile: 'File',
+  catView: 'View',
+  catTheme: 'Theme',
+  catChat: 'Chat',
+
+  // Sidebar panel hints
+  search: 'SEARCH',
+  searchHint: 'Ask Claude to search your codebase',
+
+  // FileTree context menu
+  ctxOpenFile: 'Open File',
+  ctxCopyPath: 'Copy Path',
+  ctxCopyRelPath: 'Copy Relative Path',
+  ctxRevealExplorer: 'Reveal in Explorer',
+  ctxNewFile: 'New File',
+  ctxNewFolder: 'New Folder',
+  ctxRename: 'Rename',
+  ctxDelete: 'Delete',
+  ctxSendToChat: 'Send to Chat',
+} as const
+
+export type TranslationKey = keyof typeof en
