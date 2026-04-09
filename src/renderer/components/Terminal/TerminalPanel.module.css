@@ -1,0 +1,46 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #11111b;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  background: #1e1e2e;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a6adc8;
+  letter-spacing: 0.5px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #585b70;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+}
+
+.closeBtn:hover {
+  color: #cdd6f4;
+  background: #313244;
+}
+
+.terminal {
+  flex: 1;
+  overflow: hidden;
+  padding: 4px 8px;
+}
