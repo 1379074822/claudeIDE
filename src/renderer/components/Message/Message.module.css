@@ -1,0 +1,396 @@
+/* ============================================================
+   Message Components Styles
+   ============================================================ */
+
+/* Base message layout */
+.message {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  padding: 2px 0;
+}
+
+.user {
+  flex-direction: row-reverse;
+}
+
+/* Avatars */
+.avatarUser, .avatarAssistant {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.avatarUser {
+  background: #313244;
+  color: #cdd6f4;
+}
+
+.avatarAssistant {
+  background: #cba6f71a;
+  color: #cba6f7;
+}
+
+/* Message body */
+.body {
+  max-width: calc(100% - 34px);
+  min-width: 0;
+}
+
+.user .body {
+  text-align: right;
+}
+
+/* User message text */
+.userText {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 12px 12px 4px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+  text-align: left;
+  background: #313244;
+  color: #cdd6f4;
+  user-select: text;
+  cursor: text;
+}
+
+/* Clickable file reference chip inside user messages */
+.fileRef {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  margin: 0 2px;
+  background: #1e1e2e;
+  border: 1px solid #45475a;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  color: #89b4fa;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  vertical-align: baseline;
+  line-height: 1.4;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+
+  vertical-align: baseline;
+  line-height: 1.4;
+}
+
+.fileRef:hover {
+  background: #313244;
+  border-color: #89b4fa;
+  color: #b4d0fb;
+}
+
+/* Assistant message content */
+.assistantContent {
+  padding: 8px 12px;
+  border-radius: 12px 12px 12px 4px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  overflow: hidden;
+  user-select: text;
+  cursor: text;
+}
+
+/* Image attachments */
+.images {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.imageThumb {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 6px;
+  border: 1px solid #313244;
+}
+
+/* Streaming cursor */
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: #cba6f7;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+  border-radius: 1px;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ============================================================
+   System Message
+   ============================================================ */
+
+.systemMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+}
+
+.systemIcon {
+  color: #585b70;
+  flex-shrink: 0;
+}
+
+.systemText {
+  font-size: 12px;
+  color: #585b70;
+  font-style: italic;
+}
+
+/* ============================================================
+   Tool Message
+   ============================================================ */
+
+.toolMessage {
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 12px;
+  margin: 2px 0;
+  transition: border-color 0.15s;
+}
+
+.toolMessage:hover {
+  border-color: #45475a;
+}
+
+.toolHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.toolHeader:hover {
+  background: #181825;
+}
+
+.toolIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toolLabel {
+  font-weight: 600;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.toolSummary {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  color: #6c7086;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.toolExpand {
+  flex-shrink: 0;
+  color: #585b70;
+  display: flex;
+  align-items: center;
+}
+
+.toolBody {
+  border-top: 1px solid #313244;
+}
+
+.toolCode {
+  padding: 8px 12px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11.5px;
+  color: #a6adc8;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+/* Terminal-style block for bash commands */
+.terminalBlock {
+  background: #0a0a12;
+  padding: 8px 12px;
+}
+
+.terminalText {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  color: #a6e3a1;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   Inline Tool Calls (inside AssistantMessage)
+   ============================================================ */
+
+.toolCallsGroup {
+  margin: 6px 0;
+  border: 1px solid #252535;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #11111b;
+}
+
+.toolCallsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #6c7086;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.toolCallsHeader:hover {
+  background: #181825;
+}
+
+.toolCallsLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.inlineToolList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.inlineTool {
+  background: #11111b;
+  border: 1px solid #252535;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 11px;
+}
+
+.inlineToolHeader {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.inlineToolHeader:hover {
+  background: #181825;
+}
+
+.inlineToolIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.inlineToolName {
+  font-weight: 600;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 10.5px;
+  flex-shrink: 0;
+}
+
+.inlineToolSummary {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 10.5px;
+  color: #585b70;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.inlineToolStatus {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.inlineToolExpand {
+  flex-shrink: 0;
+  color: #45475a;
+  display: flex;
+  align-items: center;
+}
+
+.inlineToolBody {
+  border-top: 1px solid #252535;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.inlineTerminal {
+  padding: 5px 8px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+  color: #a6e3a1;
+  background: #0a0a12;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.inlineToolCode {
+  padding: 5px 8px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 10.5px;
+  color: #a6adc8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.inlineToolResult {
+  padding: 5px 8px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 10.5px;
+  color: #6c7086;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border-top: 1px solid #252535;
+  background: #08080f;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
