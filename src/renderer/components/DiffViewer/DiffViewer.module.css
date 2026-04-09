@@ -1,0 +1,96 @@
+.diff {
+  border: 1px solid #313244;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #181825;
+  border-bottom: 1px solid #313244;
+}
+
+.fileName {
+  font-family: monospace;
+  color: #89b4fa;
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+}
+
+.added {
+  color: #a6e3a1;
+  font-weight: 600;
+}
+
+.removed {
+  color: #f38ba8;
+  font-weight: 600;
+}
+
+.body {
+  max-height: 300px;
+  overflow-y: auto;
+  background: #11111b;
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  padding: 1px 0;
+}
+
+.lineAdded {
+  background: #a6e3a11a;
+}
+
+.lineRemoved {
+  background: #f38ba81a;
+}
+
+.lineContext {
+  opacity: 0.7;
+}
+
+.linePrefix {
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  font-family: monospace;
+  font-size: 11px;
+  color: #585b70;
+  padding-top: 1px;
+}
+
+.lineAdded .linePrefix {
+  color: #a6e3a1;
+}
+
+.lineRemoved .linePrefix {
+  color: #f38ba8;
+}
+
+.lineText {
+  flex: 1;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #cdd6f4;
+  font-size: 11px;
+  line-height: 1.5;
+  padding-right: 8px;
+}
+
+.more {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #585b70;
+  background: #181825;
+}
