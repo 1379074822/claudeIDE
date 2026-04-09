@@ -1,0 +1,163 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e2e;
+}
+
+.tabBar {
+  display: flex;
+  align-items: center;
+  background: #181825;
+  border-bottom: 1px solid #313244;
+  overflow-x: auto;
+  flex-shrink: 0;
+  height: 35px;
+}
+
+.tabBar::-webkit-scrollbar {
+  height: 2px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  cursor: pointer;
+  font-size: 12px;
+  color: #6c7086;
+  border-right: 1px solid #313244;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.tab:hover {
+  background: #313244;
+  color: #cdd6f4;
+}
+
+.activeTab {
+  background: #1e1e2e !important;
+  color: #cdd6f4 !important;
+  border-bottom: 2px solid #cba6f7;
+}
+
+.tabName {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot {
+  color: #cba6f7;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  color: #6c7086;
+  border-radius: 3px;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.tab:hover .closeBtn,
+.activeTab .closeBtn {
+  opacity: 1;
+}
+
+.closeBtn:hover {
+  background: #45475a;
+  color: #cdd6f4;
+}
+
+.editorContent {
+  flex: 1;
+  overflow: hidden;
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 12px;
+  background: #11111b;
+  border-top: 1px solid #313244;
+  font-size: 11px;
+  color: #585b70;
+  flex-shrink: 0;
+}
+
+.modifiedBadge {
+  color: #f9e2af;
+}
+
+.monacoLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 13px;
+  color: #45475a;
+  background: #1e1e2e;
+}
+
+.lang {
+  color: #cba6f7;
+  font-weight: 500;
+}
+
+.filePath {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #1e1e2e;
+}
+
+.emptyContent {
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #313244;
+  margin-bottom: 12px;
+}
+
+.emptyHint {
+  font-size: 13px;
+  color: #45475a;
+  margin-bottom: 24px;
+}
+
+.shortcuts {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 12px;
+  color: #45475a;
+}
+
+kbd {
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #a6adc8;
+}
