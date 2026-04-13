@@ -24,7 +24,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #6c7086;
+  color: var(--text-muted);
 }
 
 .field {
@@ -35,17 +35,17 @@
 
 .field label {
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .input {
   padding: 6px 8px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: #cdd6f4;
+  color: var(--text);
   font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
@@ -54,7 +54,7 @@
 }
 
 .input:focus {
-  border-color: #cba6f7;
+  border-color: var(--accent);
 }
 
 .addBtn {
@@ -63,16 +63,16 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #313244;
+  background: var(--bg-muted);
   border-radius: 4px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
 }
 
 .addBtn:hover {
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: var(--accent);
+  color: var(--bg-base);
 }
 
 .addForm {
@@ -80,8 +80,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  background: #11111b;
-  border: 1px solid #313244;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -91,8 +91,8 @@
   justify-content: center;
   gap: 6px;
   padding: 7px;
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: var(--accent);
+  color: var(--bg-base);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
@@ -115,8 +115,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   border-radius: 6px;
   gap: 8px;
 }
@@ -132,12 +132,12 @@
 .modelName {
   font-size: 12px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .modelId {
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   font-family: monospace;
   white-space: nowrap;
   overflow: hidden;
@@ -146,15 +146,15 @@
 
 .modelDesc {
   font-size: 10px;
-  color: #45475a;
+  color: var(--bg-subtle);
 }
 
 .modelBadge {
   display: inline-block;
   font-size: 9px;
-  color: #a6e3a1;
-  background: #a6e3a11a;
-  border: 1px solid #a6e3a133;
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid rgba(166, 227, 161, 0.2);
   border-radius: 3px;
   padding: 1px 5px;
   margin-top: 2px;
@@ -168,12 +168,12 @@
   width: 22px;
   height: 22px;
   border-radius: 4px;
-  color: #45475a;
+  color: var(--bg-subtle);
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
 }
 
 .deleteBtn:hover {
-  color: #f38ba8;
-  background: #f38ba81a;
+  color: var(--error);
+  background: var(--error-bg);
 }
