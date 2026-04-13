@@ -13,17 +13,17 @@
 .tabBar {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   overflow-x: auto;
-  background: #11111b;
+  background: var(--bg-overlay);
 }
 
 .tab {
   padding: 7px 12px;
   font-size: 11px;
   font-weight: 500;
-  color: #6c7086;
+  color: var(--text-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: color 0.15s, border-color 0.15s;
@@ -35,12 +35,12 @@
 }
 
 .tab:hover {
-  color: #a6adc8;
+  color: var(--text-secondary);
 }
 
 .tabActive {
-  color: #cba6f7;
-  border-bottom-color: #cba6f7;
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 /* Tab content */
@@ -69,7 +69,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #6c7086;
+  color: var(--text-muted);
 }
 
 .field {
@@ -80,17 +80,17 @@
 
 .fieldLabel {
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .input {
   padding: 6px 8px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: #cdd6f4;
+  color: var(--text);
   font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
@@ -99,7 +99,7 @@
 }
 
 .input:focus {
-  border-color: #cba6f7;
+  border-color: var(--accent);
 }
 
 .textarea {
@@ -126,12 +126,12 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
 .checkbox input[type="checkbox"] {
-  accent-color: #cba6f7;
+  accent-color: var(--accent);
 }
 
 /* Buttons */
@@ -141,9 +141,9 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #313244;
+  background: var(--bg-muted);
   border-radius: 4px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
   cursor: pointer;
@@ -151,8 +151,8 @@
 }
 
 .addBtn:hover {
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: var(--accent);
+  color: var(--bg-base);
 }
 
 .saveBtn {
@@ -161,8 +161,8 @@
   justify-content: center;
   gap: 6px;
   padding: 7px;
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: var(--accent);
+  color: var(--bg-base);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
@@ -183,7 +183,7 @@
 
 .dangerBtn {
   composes: saveBtn;
-  background: #f38ba8;
+  background: var(--error);
 }
 
 .deleteBtn {
@@ -193,7 +193,7 @@
   width: 22px;
   height: 22px;
   border-radius: 4px;
-  color: #45475a;
+  color: var(--text-faint);
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
   cursor: pointer;
@@ -202,7 +202,7 @@
 }
 
 .deleteBtn:hover {
-  color: #f38ba8;
+  color: var(--error);
   background: #f38ba81a;
 }
 
@@ -212,8 +212,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   border-radius: 6px;
   gap: 8px;
 }
@@ -229,12 +229,12 @@
 .cardName {
   font-size: 12px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .cardDetail {
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   font-family: monospace;
   white-space: nowrap;
   overflow: hidden;
@@ -243,7 +243,7 @@
 
 .cardDesc {
   font-size: 10px;
-  color: #45475a;
+  color: var(--text-faint);
 }
 
 /* Badge / Tag */
@@ -259,10 +259,10 @@
 }
 
 .badgeCommand { color: #f9e2af; background: #f9e2af1a; }
-.badgePrompt  { color: #cba6f7; background: #cba6f71a; }
+.badgePrompt  { color: var(--accent); background: var(--accent-bg); }
 .badgeHttp    { color: #fab387; background: #fab3871a; }
-.badgeAgent   { color: #a6e3a1; background: #a6e3a11a; }
-.badgeStdio   { color: #89b4fa; background: #89b4fa1a; }
+.badgeAgent   { color: var(--success); background: #a6e3a11a; }
+.badgeStdio   { color: var(--info); background: #89b4fa1a; }
 .badgeSse     { color: #f5c2e7; background: #f5c2e71a; }
 
 /* Add form panel */
@@ -271,8 +271,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  background: #11111b;
-  border: 1px solid #313244;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
   border-radius: 6px;
   margin-bottom: 8px;
 }
@@ -283,7 +283,7 @@
   gap: 0;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #313244;
+  border: 1px solid var(--border);
   margin-bottom: 8px;
 }
 
@@ -293,20 +293,20 @@
   font-size: 11px;
   font-weight: 600;
   text-align: center;
-  color: #6c7086;
-  background: #1e1e2e;
+  color: var(--text-muted);
+  background: var(--bg-base);
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   border: none;
 }
 
 .scopeBtn:hover {
-  color: #a6adc8;
+  color: var(--text-secondary);
 }
 
 .scopeBtnActive {
-  color: #cba6f7;
-  background: #313244;
+  color: var(--accent);
+  background: var(--bg-muted);
 }
 
 /* Permission mode radio group */
@@ -327,22 +327,22 @@
 }
 
 .radioItem:hover {
-  background: #1e1e2e;
+  background: var(--bg-base);
 }
 
 .radioItemActive {
-  background: #cba6f71a;
+  background: var(--accent-bg);
 }
 
 .radioLabel {
   font-size: 12px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .radioDesc {
   font-size: 10px;
-  color: #6c7086;
+  color: var(--text-muted);
 }
 
 /* Model list items */
@@ -353,7 +353,7 @@
 .modelBadge {
   display: inline-block;
   font-size: 9px;
-  color: #a6e3a1;
+  color: var(--success);
   background: #a6e3a11a;
   border: 1px solid #a6e3a133;
   border-radius: 3px;
@@ -369,7 +369,7 @@
   align-items: center;
   gap: 6px;
   padding: 24px 12px;
-  color: #45475a;
+  color: var(--text-faint);
   font-size: 12px;
   text-align: center;
 }
@@ -377,7 +377,7 @@
 /* CLAUDE.md editor */
 .editorWrapper {
   flex: 1;
-  border: 1px solid #313244;
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   min-height: 200px;
@@ -389,9 +389,9 @@
   justify-content: space-between;
   padding: 6px 0;
   font-size: 11px;
-  color: #585b70;
+  color: var(--text-disabled);
 }
 
 .savedIndicator {
-  color: #a6e3a1;
+  color: var(--success);
 }
