@@ -27,13 +27,13 @@
 }
 
 .avatarUser {
-  background: #313244;
-  color: #cdd6f4;
+  background: var(--bg-muted);
+  color: var(--text);
 }
 
 .avatarAssistant {
-  background: #cba6f71a;
-  color: #cba6f7;
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 /* Message body */
@@ -55,8 +55,8 @@
   line-height: 1.6;
   word-break: break-word;
   text-align: left;
-  background: #313244;
-  color: #cdd6f4;
+  background: var(--bg-muted);
+  color: var(--text);
   user-select: text;
   cursor: text;
 }
@@ -68,12 +68,12 @@
   gap: 4px;
   padding: 1px 8px;
   margin: 0 2px;
-  background: #1e1e2e;
-  border: 1px solid #45475a;
+  background: var(--bg-base);
+  border: 1px solid var(--bg-subtle);
   border-radius: 4px;
   font-size: 12px;
   font-family: 'Cascadia Code', 'Fira Code', monospace;
-  color: #89b4fa;
+  color: var(--info);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   vertical-align: baseline;
@@ -87,17 +87,17 @@
 }
 
 .fileRef:hover {
-  background: #313244;
-  border-color: #89b4fa;
-  color: #b4d0fb;
+  background: var(--bg-muted);
+  border-color: var(--info);
+  color: var(--info);
 }
 
 /* Assistant message content */
 .assistantContent {
   padding: 8px 12px;
   border-radius: 12px 12px 12px 4px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   overflow: hidden;
   user-select: text;
   cursor: text;
@@ -115,7 +115,7 @@
   max-width: 200px;
   max-height: 200px;
   border-radius: 6px;
-  border: 1px solid #313244;
+  border: 1px solid var(--border);
 }
 
 /* Streaming cursor */
@@ -123,7 +123,7 @@
   display: inline-block;
   width: 8px;
   height: 14px;
-  background: #cba6f7;
+  background: var(--accent);
   margin-left: 2px;
   vertical-align: middle;
   animation: blink 1s step-end infinite;
@@ -147,13 +147,13 @@
 }
 
 .systemIcon {
-  color: #585b70;
+  color: var(--text-disabled);
   flex-shrink: 0;
 }
 
 .systemText {
   font-size: 12px;
-  color: #585b70;
+  color: var(--text-disabled);
   font-style: italic;
 }
 
@@ -162,8 +162,8 @@
    ============================================================ */
 
 .toolMessage {
-  background: #11111b;
-  border: 1px solid #313244;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
   font-size: 12px;
@@ -172,7 +172,7 @@
 }
 
 .toolMessage:hover {
-  border-color: #45475a;
+  border-color: var(--border-hover);
 }
 
 .toolHeader {
@@ -186,7 +186,7 @@
 }
 
 .toolHeader:hover {
-  background: #181825;
+  background: var(--bg-surface);
 }
 
 .toolIcon {
@@ -205,7 +205,7 @@
 .toolSummary {
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -215,20 +215,20 @@
 
 .toolExpand {
   flex-shrink: 0;
-  color: #585b70;
+  color: var(--text-disabled);
   display: flex;
   align-items: center;
 }
 
 .toolBody {
-  border-top: 1px solid #313244;
+  border-top: 1px solid var(--border);
 }
 
 .toolCode {
   padding: 8px 12px;
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 11.5px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 200px;
@@ -238,14 +238,14 @@
 
 /* Terminal-style block for bash commands */
 .terminalBlock {
-  background: #0a0a12;
+  background: var(--bg-overlay);
   padding: 8px 12px;
 }
 
 .terminalText {
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 12px;
-  color: #a6e3a1;
+  color: var(--success);
   white-space: pre-wrap;
   word-break: break-all;
   line-height: 1.5;
@@ -257,10 +257,10 @@
 
 .toolCallsGroup {
   margin: 6px 0;
-  border: 1px solid #252535;
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
-  background: #11111b;
+  background: var(--bg-overlay);
 }
 
 .toolCallsHeader {
@@ -270,13 +270,13 @@
   padding: 4px 8px;
   cursor: pointer;
   font-size: 11px;
-  color: #6c7086;
+  color: var(--text-muted);
   transition: background 0.1s;
   user-select: none;
 }
 
 .toolCallsHeader:hover {
-  background: #181825;
+  background: var(--bg-surface);
 }
 
 .toolCallsLabel {
@@ -292,8 +292,8 @@
 }
 
 .inlineTool {
-  background: #11111b;
-  border: 1px solid #252535;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   font-size: 11px;
@@ -310,7 +310,7 @@
 }
 
 .inlineToolHeader:hover {
-  background: #181825;
+  background: var(--bg-surface);
 }
 
 .inlineToolIcon {
@@ -329,7 +329,7 @@
 .inlineToolSummary {
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 10.5px;
-  color: #585b70;
+  color: var(--text-disabled);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -345,13 +345,13 @@
 
 .inlineToolExpand {
   flex-shrink: 0;
-  color: #45475a;
+  color: var(--text-faint);
   display: flex;
   align-items: center;
 }
 
 .inlineToolBody {
-  border-top: 1px solid #252535;
+  border-top: 1px solid var(--border);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -360,8 +360,8 @@
   padding: 5px 8px;
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 11px;
-  color: #a6e3a1;
-  background: #0a0a12;
+  color: var(--success);
+  background: var(--bg-overlay);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -370,7 +370,7 @@
   padding: 5px 8px;
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 10.5px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -379,12 +379,52 @@
   padding: 5px 8px;
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   font-size: 10.5px;
-  color: #6c7086;
+  color: var(--text-muted);
   white-space: pre-wrap;
   word-break: break-all;
-  border-top: 1px solid #252535;
-  background: #08080f;
+  border-top: 1px solid var(--border);
+  background: var(--bg-overlay);
 }
+
+.inlineToolResultSmall {
+  padding: 4px 8px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--bg-overlay);
+}
+
+.diffActions {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-overlay);
+}
+
+.diffAcceptBtn {
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(166, 227, 161, 0.15);
+  border: 1px solid rgba(166, 227, 161, 0.4);
+  border-radius: 4px;
+  color: #a6e3a1;
+  cursor: pointer;
+}
+.diffAcceptBtn:hover { background: rgba(166, 227, 161, 0.25); }
+
+.diffRejectBtn {
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(243, 139, 168, 0.12);
+  border: 1px solid rgba(243, 139, 168, 0.35);
+  border-radius: 4px;
+  color: #f38ba8;
+  cursor: pointer;
+}
+.diffRejectBtn:hover { background: rgba(243, 139, 168, 0.22); }
 
 .spin {
   animation: spin 1s linear infinite;
