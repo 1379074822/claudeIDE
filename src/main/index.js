@@ -7,18 +7,22 @@ const execAsync = promisify(exec)
 const { ServerManager } = require('./serverManager')
 const { ConfigManager } = require('./configManager')
 
+let chokidar = null
+import('chokidar').then(m => { chokidar = m.default ?? m }).catch(e => {
+  console.warn('[chokidar] not available, file watching disabled', e.message)
+})
+
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
 let mainWindow = null
+let fsWatcher = null
 const serverManager = new ServerManager()
 const configManager = new ConfigManager()
 
 function createAppIcon() {
-  const svgPath = path.join(__dirname, '../../public/icon.svg')
+  const icoPath = path.join(__dirname, '../../public/icon.ico')
   try {
-    const svgData = fs.readFileSync(svgPath, 'utf-8')
-    const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svgData).toString('base64')}`
-    const img = nativeImage.createFromDataURL(dataUrl)
+    const img = nativeImage.createFromPath(icoPath)
     if (!img.isEmpty()) return img
   } catch {}
   return undefined
@@ -336,11 +340,32 @@ ipcMain.handle('tool:bash', async (_, { command, cwd }) => {
 
 ipcMain.handle('tool:glob', async (_, { pattern, cwd }) => {
   try {
-    const { stdout } = await execAsync(`find . -name "${pattern}" -type f`, {
-      cwd: cwd || process.cwd(),
-      shell: true,
-    })
-    return { success: true, files: stdout.trim().split('\n').filter(Boolean) }
+    const rootDir = cwd || process.cwd()
+    const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', 'out'])
+    // Convert glob pattern (e.g. *.ts, **/*.tsx) to regex
+    const regexStr = pattern
+      .replace(/\./g, '\\.')
+      .replace(/\*\*\//g, '(.+/)?')
+      .replace(/\*/g, '[^/]*')
+    const regex = new RegExp(regexStr + '$', 'i')
+    const files = []
+
+    function walk(dir) {
+      let entries
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          if (!IGNORE_DIRS.has(entry.name)) walk(fullPath)
+        } else if (entry.isFile()) {
+          const rel = path.relative(rootDir, fullPath).replace(/\\/g, '/')
+          if (regex.test(rel)) files.push(fullPath)
+        }
+      }
+    }
+
+    walk(rootDir)
+    return { success: true, files }
   } catch (err) {
     return { success: false, error: err.message }
   }
@@ -348,13 +373,49 @@ ipcMain.handle('tool:glob', async (_, { pattern, cwd }) => {
 
 ipcMain.handle('tool:grep', async (_, { pattern, path: searchPath, filePattern }) => {
   try {
-    let cmd = `grep -r "${pattern}" ${searchPath || '.'}`
-    if (filePattern) cmd += ` --include="${filePattern}"`
-    const { stdout } = await execAsync(cmd, {
-      cwd: process.cwd(),
-      maxBuffer: 5 * 1024 * 1024,
-    })
-    return { success: true, results: stdout }
+    const rootDir = searchPath || process.cwd()
+
+    // Escape pattern for literal string search (not regex)
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(escaped, 'i')
+
+    // Build file extension filter
+    let extFilter = null
+    if (filePattern) {
+      const extEscaped = filePattern.replace(/\./g, '\\.').replace(/\*/g, '.*')
+      extFilter = new RegExp(extEscaped + '$', 'i')
+    }
+
+    const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', 'out', '.cache', 'coverage'])
+    const MAX_FILE_SIZE = 1 * 1024 * 1024
+    const results = []
+
+    function walk(dir) {
+      let entries
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          if (!IGNORE_DIRS.has(entry.name)) walk(fullPath)
+        } else if (entry.isFile()) {
+          if (extFilter && !extFilter.test(entry.name)) continue
+          let stat
+          try { stat = fs.statSync(fullPath) } catch { continue }
+          if (stat.size > MAX_FILE_SIZE) continue
+          let content
+          try { content = fs.readFileSync(fullPath, 'utf8') } catch { continue }
+          const lines = content.split('\n')
+          for (let i = 0; i < lines.length; i++) {
+            if (regex.test(lines[i])) {
+              results.push(`${fullPath}:${i + 1}:${lines[i]}`)
+            }
+          }
+        }
+      }
+    }
+
+    walk(rootDir)
+    return { success: true, results: results.join('\n') }
   } catch (err) {
     return { success: false, error: err.message }
   }
@@ -448,6 +509,44 @@ ipcMain.handle('fs:delete', async (_, targetPath) => {
   }
 })
 
+ipcMain.handle('fs:watch', async (_, rootPath) => {
+  if (!chokidar) {
+    // chokidar may still be loading, try once more
+    try { const m = await import('chokidar'); chokidar = m.default ?? m } catch {}
+  }
+  if (!chokidar) return { success: false, error: 'chokidar not available' }
+  if (fsWatcher) { await fsWatcher.close(); fsWatcher = null }
+
+  console.log('[fs:watch] starting watch on', rootPath)
+  fsWatcher = chokidar.watch(rootPath, {
+    ignored: /(node_modules|\.git|dist|build|\.next)(\/|\\|$)/,
+    persistent: true,
+    ignoreInitial: true,
+    depth: 10,
+    awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
+  })
+
+  const send = (type, filePath) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('fs:changed', { type, path: filePath })
+    }
+  }
+
+  fsWatcher.on('add', p => { console.log('[fs:watch] add', p); send('add', p) })
+  fsWatcher.on('unlink', p => { console.log('[fs:watch] unlink', p); send('unlink', p) })
+  fsWatcher.on('addDir', p => { console.log('[fs:watch] addDir', p); send('addDir', p) })
+  fsWatcher.on('unlinkDir', p => { console.log('[fs:watch] unlinkDir', p); send('unlinkDir', p) })
+  fsWatcher.on('change', p => { console.log('[fs:watch] change', p); send('change', p) })
+
+  return { success: true }
+})
+
+ipcMain.handle('fs:unwatch', async () => {
+  if (fsWatcher) { await fsWatcher.close(); fsWatcher = null }
+  return { success: true }
+})
+
 // ============================================================
 // IPC - Terminal (node-pty)
 // ============================================================
@@ -527,6 +626,124 @@ ipcMain.handle('window:maximize', () => {
 })
 ipcMain.handle('window:close', () => mainWindow?.close())
 ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() || false)
+
+// ============================================================
+// IPC - Git
+// ============================================================
+
+ipcMain.handle('git:status', async (_, rootPath) => {
+  try {
+    const { stdout } = await execAsync('git status --porcelain -u', { cwd: rootPath, timeout: 5000 })
+    const statusMap = {}
+    for (const line of stdout.split('\n')) {
+      if (!line.trim()) continue
+      const xy = line.slice(0, 2)
+      const file = line.slice(3).trim().replace(/"/g, '')
+      const filePath = file.includes(' -> ') ? file.split(' -> ')[1] : file
+      const x = xy[0]
+      const y = xy[1]
+      let status = 'M'
+      if (x === '?' && y === '?') status = 'U'
+      else if (x === 'A' || x === 'C') status = 'A'
+      else if (x === 'D' || y === 'D') status = 'D'
+      else if (x === 'R') status = 'R'
+      else status = 'M'
+      statusMap[filePath.replace(/\//g, require('path').sep)] = status
+    }
+    return { success: true, statusMap }
+  } catch {
+    return { success: false, statusMap: {} }
+  }
+})
+
+ipcMain.handle('git:branch', async (_, rootPath) => {
+  try {
+    const { stdout } = await execAsync('git rev-parse --abbrev-ref HEAD', { cwd: rootPath, timeout: 5000 })
+    return { success: true, branch: stdout.trim() }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:branches', async (_, rootPath) => {
+  try {
+    const { stdout } = await execAsync('git branch --format=%(refname:short)', { cwd: rootPath, timeout: 5000 })
+    const { stdout: currentOut } = await execAsync('git rev-parse --abbrev-ref HEAD', { cwd: rootPath, timeout: 5000 })
+    const current = currentOut.trim()
+    const branches = stdout.split('\n').map(b => b.trim()).filter(Boolean)
+    return { success: true, branches, current }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:checkout', async (_, rootPath, branch) => {
+  try {
+    await execAsync(`git checkout "${branch}"`, { cwd: rootPath, timeout: 10000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:log', async (_, rootPath, limit = 30) => {
+  try {
+    const fmt = '%H\x1f%s\x1f%an\x1f%ar'
+    const { stdout } = await execAsync(`git log -${limit} --format="${fmt}"`, { cwd: rootPath, timeout: 5000 })
+    const commits = stdout.split('\n').filter(Boolean).map(line => {
+      const [hash, subject, author, date] = line.split('\x1f')
+      return { hash, subject, author, date }
+    })
+    return { success: true, commits }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:stage', async (_, rootPath, filePath) => {
+  try {
+    await execAsync(`git add "${filePath}"`, { cwd: rootPath, timeout: 5000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:unstage', async (_, rootPath, filePath) => {
+  try {
+    await execAsync(`git restore --staged "${filePath}"`, { cwd: rootPath, timeout: 5000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:stageAll', async (_, rootPath) => {
+  try {
+    await execAsync('git add -A', { cwd: rootPath, timeout: 5000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:commit', async (_, rootPath, message) => {
+  try {
+    await execAsync(`git commit -m "${message.replace(/"/g, '\\"')}"`, { cwd: rootPath, timeout: 10000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
+
+ipcMain.handle('git:discard', async (_, rootPath, filePath) => {
+  try {
+    await execAsync(`git restore "${filePath}"`, { cwd: rootPath, timeout: 5000 })
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: e.message }
+  }
+})
 
 // ============================================================
 // App lifecycle
