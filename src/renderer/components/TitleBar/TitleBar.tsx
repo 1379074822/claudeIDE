@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Minus, Square, X, Bot, FolderOpen, Server, Wifi } from 'lucide-react'
 import { useFileStore, useSessionStore, useModelStore, useT } from '../../store'
+import { getAPI } from '../../utils/electronAPI'
 import styles from './TitleBar.module.css'
 
 interface TitleBarProps {
