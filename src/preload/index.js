@@ -136,6 +136,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     mkdir: (dirPath) => ipcRenderer.invoke('fs:mkdir', dirPath),
     rename: (oldPath, newPath) => ipcRenderer.invoke('fs:rename', oldPath, newPath),
     delete: (targetPath) => ipcRenderer.invoke('fs:delete', targetPath),
+    watch: (rootPath) => ipcRenderer.invoke('fs:watch', rootPath),
+    unwatch: () => ipcRenderer.invoke('fs:unwatch'),
+    onChanged: (callback) => {
+      const handler = (_, data) => callback(data)
+      ipcRenderer.on('fs:changed', handler)
+      return () => ipcRenderer.removeListener('fs:changed', handler)
+    },
   },
 
   // ============================================================
@@ -172,6 +179,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.on(`terminal:exit:${id}`, handler)
       return () => ipcRenderer.removeListener(`terminal:exit:${id}`, handler)
     },
+  },
+
+  // ============================================================
+  // Git
+  // ============================================================
+  git: {
+    status: (rootPath) => ipcRenderer.invoke('git:status', rootPath),
+    branch: (rootPath) => ipcRenderer.invoke('git:branch', rootPath),
+    branches: (rootPath) => ipcRenderer.invoke('git:branches', rootPath),
+    checkout: (rootPath, branch) => ipcRenderer.invoke('git:checkout', rootPath, branch),
+    log: (rootPath, limit) => ipcRenderer.invoke('git:log', rootPath, limit),
+    stage: (rootPath, filePath) => ipcRenderer.invoke('git:stage', rootPath, filePath),
+    unstage: (rootPath, filePath) => ipcRenderer.invoke('git:unstage', rootPath, filePath),
+    stageAll: (rootPath) => ipcRenderer.invoke('git:stageAll', rootPath),
+    commit: (rootPath, message) => ipcRenderer.invoke('git:commit', rootPath, message),
+    discard: (rootPath, filePath) => ipcRenderer.invoke('git:discard', rootPath, filePath),
   },
 
   // ============================================================
