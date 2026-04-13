@@ -94,7 +94,6 @@ export class ServerClient {
     sessionStore.setCurrentSessionId(sessionResult.sessionId)
     sessionStore.setConnectionMode('server')
     sessionStore.setConnected(true)
-    useChatStore.getState().setCurrentSessionId(sessionResult.sessionId)
 
     this._isInitialized = true
     return { success: true }
@@ -200,7 +199,6 @@ export class ServerClient {
     const result = await api.session.resume({ sessionId, cwd })
     if (result.success) {
       useSessionStore.getState().setCurrentSessionId(result.sessionId)
-      useChatStore.getState().setCurrentSessionId(result.sessionId)
     }
     return result
   }
@@ -360,10 +358,11 @@ export class ServerClient {
       }
 
       case 'error': {
-        const streamingId = chatStore.streamingMessageId
+        const activeTab = chatStore.getActiveTab()
+        const streamingId = activeTab?.streamingMessageId
         if (streamingId) {
           chatStore.updateMessage(streamingId, {
-            content: chatStore.messages.find(m => m.id === streamingId)?.content +
+            content: (activeTab?.messages.find(m => m.id === streamingId)?.content ?? '') +
               `\n\nError: ${msg.error || 'Unknown error'}`,
             isStreaming: false,
           })
@@ -397,7 +396,7 @@ export class ServerClient {
 
     // If it's a string, simple text message
     if (typeof content === 'string') {
-      const streamingId = chatStore.streamingMessageId
+      const streamingId = chatStore.getActiveTab()?.streamingMessageId
       if (streamingId) {
         // Show content immediately as it arrives
         chatStore.updateMessage(streamingId, {
@@ -454,7 +453,7 @@ export class ServerClient {
       }
 
       // Show text immediately
-      const streamingId = chatStore.streamingMessageId
+      const streamingId = chatStore.getActiveTab()?.streamingMessageId
       if (streamingId && textContent) {
         const isDone = message.stop_reason === 'end_turn' && toolUses.length === 0
         chatStore.updateMessage(streamingId, {
