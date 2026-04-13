@@ -1,5 +1,5 @@
 .diff {
-  border: 1px solid #313244;
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -11,13 +11,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  background: #181825;
-  border-bottom: 1px solid #313244;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
 }
 
 .fileName {
   font-family: monospace;
-  color: #89b4fa;
+  color: var(--info);
 }
 
 .stats {
@@ -26,19 +26,19 @@
 }
 
 .added {
-  color: #a6e3a1;
+  color: var(--success);
   font-weight: 600;
 }
 
 .removed {
-  color: #f38ba8;
+  color: var(--error);
   font-weight: 600;
 }
 
 .body {
   max-height: 300px;
   overflow-y: auto;
-  background: #11111b;
+  background: var(--bg-overlay);
 }
 
 .line {
@@ -48,11 +48,11 @@
 }
 
 .lineAdded {
-  background: #a6e3a11a;
+  background: var(--success-bg);
 }
 
 .lineRemoved {
-  background: #f38ba81a;
+  background: var(--error-bg);
 }
 
 .lineContext {
@@ -65,16 +65,16 @@
   flex-shrink: 0;
   font-family: monospace;
   font-size: 11px;
-  color: #585b70;
+  color: var(--text-disabled);
   padding-top: 1px;
 }
 
 .lineAdded .linePrefix {
-  color: #a6e3a1;
+  color: var(--success);
 }
 
 .lineRemoved .linePrefix {
-  color: #f38ba8;
+  color: var(--error);
 }
 
 .lineText {
@@ -82,7 +82,7 @@
   font-family: 'Cascadia Code', 'Fira Code', monospace;
   white-space: pre-wrap;
   word-break: break-all;
-  color: #cdd6f4;
+  color: var(--text);
   font-size: 11px;
   line-height: 1.5;
   padding-right: 8px;
@@ -91,6 +91,6 @@
 .more {
   padding: 4px 10px;
   font-size: 11px;
-  color: #585b70;
-  background: #181825;
+  color: var(--text-disabled);
+  background: var(--bg-surface);
 }
