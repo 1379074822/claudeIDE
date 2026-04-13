@@ -6,38 +6,39 @@ import { useFileStore, type OpenFile } from '../../store'
 import { useUIStore, useSessionStore } from '../../store'
 import { claudeClient } from '../../utils/claudeClient'
 import { serverClient } from '../../utils/serverClient'
+import { diffLines } from '../../utils/fileUtils'
 import styles from './Editor.module.css'
 
 // ── Pre-init Monaco from local node_modules (eliminates CDN loading) ──────
 loader.config({ monaco })
 
-const CATPPUCCIN_THEME = {
+const DARK_EDITOR_THEME = {
   base: 'vs-dark' as const,
   inherit: true,
   rules: [
-    { token: 'comment', foreground: '585b70', fontStyle: 'italic' },
-    { token: 'keyword', foreground: 'cba6f7' },
-    { token: 'string', foreground: 'a6e3a1' },
-    { token: 'number', foreground: 'fab387' },
-    { token: 'type', foreground: 'f38ba8' },
-    { token: 'function', foreground: '89b4fa' },
-    { token: 'variable', foreground: 'cdd6f4' },
+    { token: 'comment', foreground: '555555', fontStyle: 'italic' },
+    { token: 'keyword', foreground: '4db8b8' },
+    { token: 'string', foreground: '4d9e6e' },
+    { token: 'number', foreground: 'b89550' },
+    { token: 'type', foreground: '5090c0' },
+    { token: 'function', foreground: '8ab4d8' },
+    { token: 'variable', foreground: 'cccccc' },
   ],
   colors: {
-    'editor.background': '#1e1e2e',
-    'editor.foreground': '#cdd6f4',
-    'editor.lineHighlightBackground': '#313244',
-    'editor.selectionBackground': '#45475a',
-    'editorCursor.foreground': '#f5c2e7',
-    'editorLineNumber.foreground': '#45475a',
-    'editorLineNumber.activeForeground': '#cba6f7',
-    'editor.inactiveSelectionBackground': '#313244',
-    'editorIndentGuide.background': '#313244',
-    'editorWhitespace.foreground': '#313244',
+    'editor.background': '#1a1a1a',
+    'editor.foreground': '#cccccc',
+    'editor.lineHighlightBackground': '#222222',
+    'editor.selectionBackground': '#2e2e2e',
+    'editorCursor.foreground': '#4db8b8',
+    'editorLineNumber.foreground': '#3a3a3a',
+    'editorLineNumber.activeForeground': '#666666',
+    'editor.inactiveSelectionBackground': '#252525',
+    'editorIndentGuide.background': '#252525',
+    'editorWhitespace.foreground': '#252525',
     'scrollbar.shadow': '#00000000',
-    'scrollbarSlider.background': '#45475a80',
-    'scrollbarSlider.hoverBackground': '#585b7080',
-    'scrollbarSlider.activeBackground': '#6c708680',
+    'scrollbarSlider.background': '#2e2e2e80',
+    'scrollbarSlider.hoverBackground': '#3e3e3e80',
+    'scrollbarSlider.activeBackground': '#4e4e4e80',
   },
 }
 
@@ -55,7 +56,7 @@ function TabBar() {
           title={file.path}
         >
           <span className={styles.tabName}>{file.name}</span>
-          {file.modified && <Circle size={6} fill="#cba6f7" stroke="none" className={styles.dot} />}
+          {file.modified && <Circle size={6} fill="#4d9fff" stroke="none" className={styles.dot} />}
           <button
             className={styles.closeBtn}
             onClick={e => { e.stopPropagation(); closeFile(file.path) }}
@@ -70,13 +71,17 @@ function TabBar() {
 
 // ── Single Monaco instance that swaps models on tab switch ────────────────
 function SingleEditor() {
-  const { openFiles, activeFilePath, updateFileContent, markFileSaved } = useFileStore()
+  const { openFiles, activeFilePath, updateFileContent, markFileSaved, pendingDiffs, acceptPendingDiff, rejectPendingDiff } = useFileStore()
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<typeof monaco | null>(null)
   // Map from file path → monaco model
   const modelsRef = useRef<Map<string, monaco.editor.ITextModel>>(new Map())
   // Track view state (scroll/cursor) per file
   const viewStateRef = useRef<Map<string, monaco.editor.ICodeEditorViewState>>(new Map())
+  // Pending diff decorations collection
+  const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null)
+  // Accept/Reject widget DOM node
+  const diffWidgetRef = useRef<{ widget: monaco.editor.IContentWidget; el: HTMLElement } | null>(null)
 
   const activeFile = openFiles.find(f => f.path === activeFilePath)
 
@@ -85,8 +90,8 @@ function SingleEditor() {
     editorRef.current = editor
     monacoRef.current = monacoInst
 
-    monacoInst.editor.defineTheme('catppuccin', CATPPUCCIN_THEME)
-    monacoInst.editor.setTheme('catppuccin')
+    monacoInst.editor.defineTheme('ide-dark', DARK_EDITOR_THEME)
+    monacoInst.editor.setTheme(useUIStore.getState().theme === 'clean-light' ? 'vs' : 'ide-dark')
 
     // Ctrl+S → save
     editor.addCommand(monacoInst.KeyMod.CtrlCmd | monacoInst.KeyCode.KeyS, async () => {
@@ -102,6 +107,10 @@ function SingleEditor() {
 
     // AI right-click actions
     const sendToChat = (prompt: string) => {
+      // Ensure chat panel is visible
+      const uiStore = useUIStore.getState()
+      if (!uiStore.showChat) uiStore.toggleChat()
+
       const { connectionMode } = useSessionStore.getState()
       if (connectionMode === 'server') {
         serverClient.sendMessage(prompt)
@@ -149,6 +158,19 @@ function SingleEditor() {
         const code = sel ? ed.getModel()?.getValueInRange(sel) : ''
         if (!code?.trim()) return
         sendToChat(`为以下代码生成完整的单元测试：\n\`\`\`\n${code}\n\`\`\``)
+      },
+    })
+
+    editor.addAction({
+      id: 'ai-fix',
+      label: '🐛 AI: Fix Bug / 修复问题',
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 4,
+      run: (ed) => {
+        const sel = ed.getSelection()
+        const code = sel ? ed.getModel()?.getValueInRange(sel) : ''
+        if (!code?.trim()) return
+        sendToChat(`以下代码有问题，请帮我找出并修复：\n\`\`\`\n${code}\n\`\`\``)
       },
     })
 
@@ -257,17 +279,152 @@ function SingleEditor() {
   // Auto-save: 3 seconds after last edit, if file is modified
   useEffect(() => {
     if (!activeFile?.modified) return
+    // Don't auto-save files with pending diffs — user must explicitly accept
+    const hasPendingDiff = useFileStore.getState().pendingDiffs.some(d => d.filePath === activeFile.path)
+    if (hasPendingDiff) return
     const timer = setTimeout(async () => {
       const api = (window as any).electronAPI
       if (!api) return
       const store = useFileStore.getState()
       const file = store.openFiles.find(f => f.path === activeFile.path)
       if (!file?.modified) return
+      // Double-check no pending diff appeared
+      if (store.pendingDiffs.some(d => d.filePath === activeFile.path)) return
       const result = await api.fs.writeFile(file.path, file.content)
       if (result.success) store.markFileSaved(file.path)
     }, 3000)
     return () => clearTimeout(timer)
   }, [activeFile?.content, activeFile?.path])
+
+  // Pending diff decorations
+  useEffect(() => {
+    const editor = editorRef.current
+    const monacoInst = monacoRef.current
+    if (!editor || !monacoInst || !activeFilePath) return
+
+    const pendingDiff = pendingDiffs.find(d => d.filePath === activeFilePath)
+
+    // Clear previous decorations
+    if (decorationsRef.current) {
+      decorationsRef.current.clear()
+    }
+    // Remove previous widget
+    if (diffWidgetRef.current) {
+      editor.removeContentWidget(diffWidgetRef.current.widget)
+      diffWidgetRef.current = null
+    }
+
+    if (!pendingDiff) return
+
+    // Compute line-level diff and map to newContent line numbers
+    const lines = diffLines(pendingDiff.oldContent, pendingDiff.newContent)
+    const addedLines: number[] = []
+    const deletedBeforeLine: Array<{ lineNo: number; texts: string[] }> = []
+    let newLineNo = 1
+    let pendingDeleted: string[] = []
+
+    for (const line of lines) {
+      if (line.type === '-') {
+        pendingDeleted.push(line.text)
+      } else if (line.type === '+') {
+        if (pendingDeleted.length > 0) {
+          deletedBeforeLine.push({ lineNo: newLineNo, texts: pendingDeleted })
+          pendingDeleted = []
+        }
+        addedLines.push(newLineNo)
+        newLineNo++
+      } else {
+        if (pendingDeleted.length > 0) {
+          deletedBeforeLine.push({ lineNo: newLineNo, texts: pendingDeleted })
+          pendingDeleted = []
+        }
+        newLineNo++
+      }
+    }
+    if (pendingDeleted.length > 0) {
+      deletedBeforeLine.push({ lineNo: newLineNo, texts: pendingDeleted })
+    }
+
+    // Build decorations for added lines
+    const decorations: monaco.editor.IModelDeltaDecoration[] = addedLines.map(ln => ({
+      range: new monacoInst.Range(ln, 1, ln, 1),
+      options: {
+        isWholeLine: true,
+        className: 'diff-added-line',
+        linesDecorationsClassName: 'diff-added-gutter',
+        overviewRuler: { color: 'rgba(166,227,161,0.6)', position: monacoInst.editor.OverviewRulerLane.Left },
+      },
+    }))
+
+    // Build decorations for deleted lines (shown as overlay above the insertion point)
+    for (const { lineNo, texts } of deletedBeforeLine) {
+      for (const text of texts) {
+        decorations.push({
+          range: new monacoInst.Range(Math.max(1, lineNo - 1), 1, Math.max(1, lineNo - 1), 1),
+          options: {
+            after: {
+              content: text || ' ',
+              inlineClassName: 'diff-deleted-inline',
+            },
+          },
+        })
+      }
+    }
+
+    if (!decorationsRef.current) {
+      decorationsRef.current = editor.createDecorationsCollection([])
+    }
+    decorationsRef.current.set(decorations)
+
+    // Inject CSS for decorations if not already present
+    if (!document.getElementById('diff-decoration-styles')) {
+      const style = document.createElement('style')
+      style.id = 'diff-decoration-styles'
+      style.textContent = `
+        .diff-added-line { background: rgba(166,227,161,0.12) !important; }
+        .diff-added-gutter { background: rgba(166,227,161,0.5); width: 3px !important; margin-left: 3px; }
+        .diff-deleted-inline { background: rgba(243,139,168,0.18); color: #f38ba8; text-decoration: line-through; font-size: 12px; }
+      `
+      document.head.appendChild(style)
+    }
+
+    // Show Accept/Reject widget near the first changed line
+    const firstChangedLine = addedLines[0] || (deletedBeforeLine[0]?.lineNo ?? 1)
+    const el = document.createElement('div')
+    el.style.cssText = 'display:flex;gap:4px;padding:2px 0;z-index:100'
+    el.innerHTML = `
+      <button id="diff-accept-btn" style="padding:2px 10px;font-size:11px;font-weight:600;background:rgba(166,227,161,0.2);border:1px solid rgba(166,227,161,0.5);border-radius:4px;color:#a6e3a1;cursor:pointer;">Keep</button>
+      <button id="diff-reject-btn" style="padding:2px 10px;font-size:11px;font-weight:600;background:rgba(243,139,168,0.15);border:1px solid rgba(243,139,168,0.4);border-radius:4px;color:#f38ba8;cursor:pointer;">Undo</button>
+    `
+
+    const widget: monaco.editor.IContentWidget = {
+      getId: () => 'diff-accept-reject-widget',
+      getDomNode: () => el,
+      getPosition: () => ({
+        position: { lineNumber: firstChangedLine, column: 1 },
+        preference: [monacoInst.editor.ContentWidgetPositionPreference.ABOVE],
+      }),
+    }
+
+    editor.addContentWidget(widget)
+    diffWidgetRef.current = { widget, el }
+
+    const filePath = activeFilePath
+    el.querySelector('#diff-accept-btn')?.addEventListener('click', () => {
+      acceptPendingDiff(filePath)
+    })
+    el.querySelector('#diff-reject-btn')?.addEventListener('click', () => {
+      rejectPendingDiff(filePath)
+    })
+
+    return () => {
+      if (decorationsRef.current) decorationsRef.current.clear()
+      if (diffWidgetRef.current) {
+        editor.removeContentWidget(diffWidgetRef.current.widget)
+        diffWidgetRef.current = null
+      }
+    }
+  }, [activeFilePath, pendingDiffs, acceptPendingDiff, rejectPendingDiff])
 
   // Cleanup models for closed files
   useEffect(() => {
@@ -281,7 +438,7 @@ function SingleEditor() {
     })
   }, [openFiles])
 
-  if (!activeFile) return null
+  if (!activeFile || activeFile.content == null) return null
 
   // Large file protection: >1MB → read-only mode
   const isLargeFile = activeFile.content.length > 1024 * 1024
@@ -292,7 +449,7 @@ function SingleEditor() {
       // language & value are set via model; these are initial only
       defaultLanguage={activeFile.language}
       defaultValue={activeFile.content}
-      theme="catppuccin"
+      theme={useUIStore.getState().theme === 'clean-light' ? 'vs' : 'ide-dark'}
       loading={<div className={styles.monacoLoading}>Loading editor…</div>}
       options={{
         fontSize: 14,
