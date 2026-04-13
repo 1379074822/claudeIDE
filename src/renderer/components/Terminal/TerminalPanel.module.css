@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #11111b;
+  background: var(--bg-overlay);
   overflow: hidden;
 }
 
@@ -11,22 +11,22 @@
   align-items: center;
   justify-content: space-between;
   padding: 4px 10px;
-  background: #1e1e2e;
-  border-bottom: 1px solid #313244;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
 .title {
   font-size: 11px;
   font-weight: 600;
-  color: #a6adc8;
+  color: var(--text-secondary);
   letter-spacing: 0.5px;
 }
 
 .closeBtn {
   background: none;
   border: none;
-  color: #585b70;
+  color: var(--text-disabled);
   cursor: pointer;
   padding: 2px;
   display: flex;
@@ -35,8 +35,8 @@
 }
 
 .closeBtn:hover {
-  color: #cdd6f4;
-  background: #313244;
+  color: var(--text);
+  background: var(--bg-muted);
 }
 
 .terminal {
