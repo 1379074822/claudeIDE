@@ -6,7 +6,7 @@
   height: 100%;
   padding: 32px 24px;
   overflow-y: auto;
-  background: #181825;
+  background: var(--bg-surface);
 }
 
 /* Hero */
@@ -21,13 +21,13 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #cdd6f4;
+  color: var(--text);
   margin: 0;
 }
 
 .subtitle {
   font-size: 13px;
-  color: #585b70;
+  color: var(--text-disabled);
   margin: 0;
 }
 
@@ -43,10 +43,10 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #313244;
-  border: 1px solid #45475a;
+  background: var(--bg-muted);
+  border: 1px solid var(--bg-subtle);
   border-radius: 8px;
-  color: #cdd6f4;
+  color: var(--text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -54,8 +54,8 @@
 }
 
 .actionBtn:hover {
-  background: #45475a;
-  border-color: #cba6f7;
+  background: var(--bg-subtle);
+  border-color: var(--accent);
 }
 
 /* Recent projects */
@@ -71,7 +71,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #6c7086;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 8px;
@@ -80,7 +80,7 @@
 .recentEmpty {
   text-align: center;
   font-size: 12px;
-  color: #45475a;
+  color: var(--bg-subtle);
   padding: 16px;
 }
 
@@ -101,11 +101,11 @@
 }
 
 .recentItem:hover {
-  background: #1e1e2e;
+  background: var(--bg-base);
 }
 
 .recentIcon {
-  color: #6c7086;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -117,12 +117,12 @@
 .recentName {
   font-size: 13px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .recentPath {
   font-size: 11px;
-  color: #585b70;
+  color: var(--text-disabled);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -137,7 +137,7 @@
 
 .recentTime {
   font-size: 10px;
-  color: #45475a;
+  color: var(--bg-subtle);
 }
 
 .recentRemove {
@@ -147,7 +147,7 @@
   width: 18px;
   height: 18px;
   border-radius: 3px;
-  color: #45475a;
+  color: var(--bg-subtle);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -160,7 +160,7 @@
 }
 
 .recentRemove:hover {
-  color: #f38ba8;
+  color: var(--error);
 }
 
 /* Tips */
@@ -176,5 +176,5 @@
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: #45475a;
+  color: var(--bg-subtle);
 }
