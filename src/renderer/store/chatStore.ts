@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export type InlineToolCall = {
   id: string
@@ -87,6 +88,10 @@ type ChatStore = {
   // Conversation history (per-tab, used by claudeClient)
   pushHistory: (tabId: string, entry: { role: string; content: unknown }) => void
   clearHistory: (tabId: string) => void
+  /** Delete messages from fromMsgIndex onward (inclusive) in the specified tab */
+  truncateMessages: (tabId: string, fromMsgIndex: number) => void
+  /** Delete conversationHistory entries from fromHistIndex onward (inclusive) in the specified tab */
+  truncateHistory: (tabId: string, fromHistIndex: number) => void
 
   // Getters
   getActiveTab: () => ChatTab | undefined
@@ -96,7 +101,9 @@ type ChatStore = {
 const initialTab = createTab('Chat 1')
 tabCounter = 2   // next new tab will be "Chat 2"
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+export const useChatStore = create<ChatStore>()(
+  persist(
+    (set, get) => ({
   tabs: [initialTab],
   activeTabId: initialTab.id,
 
@@ -234,6 +241,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     ),
   })),
 
+  truncateMessages: (tabId, fromMsgIndex) => set(state => ({
+    tabs: state.tabs.map(t =>
+      t.id === tabId ? { ...t, messages: t.messages.slice(0, fromMsgIndex) } : t
+    ),
+  })),
+
+  truncateHistory: (tabId, fromHistIndex) => set(state => ({
+    tabs: state.tabs.map(t =>
+      t.id === tabId ? { ...t, conversationHistory: t.conversationHistory.slice(0, fromHistIndex) } : t
+    ),
+  })),
+
   // ── Getters ────────────────────────────────────────────────
   getActiveTab: () => {
     const s = get()
@@ -241,4 +260,27 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   getTab: (tabId) => get().tabs.find(t => t.id === tabId),
-}))
+}),
+{
+  name: 'claude-ide-chat',
+  partialize: (state) => ({
+    activeTabId: state.activeTabId,
+    tabs: state.tabs.map(t => ({
+      ...t,
+      isStreaming: false,
+      streamingMessageId: null,
+      messages: t.messages.filter(m => !m.isStreaming),
+    })),
+  }),
+  onRehydrateStorage: () => (state) => {
+    if (!state) return
+    // Sync tabCounter so new tabs don't collide with restored titles
+    const maxN = state.tabs.reduce((max, t) => {
+      const m = t.title.match(/^Chat (\d+)$/)
+      return m ? Math.max(max, parseInt(m[1])) : max
+    }, 0)
+    if (maxN >= tabCounter) tabCounter = maxN + 1
+  },
+}
+  )
+)
