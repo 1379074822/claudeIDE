@@ -14,7 +14,7 @@ type UIStore = {
   chatWidth: number
   showFileTree: boolean
   showChat: boolean
-  activePanel: 'files' | 'search' | 'settings' | 'sessions'
+  activePanel: 'files' | 'search' | 'settings' | 'git'
   theme: ThemeId
   lastCopyContext: CopyContext
   pendingFileRef: string | null   // path set by FileTree "Send to Chat"
@@ -28,9 +28,15 @@ type UIStore = {
   setPendingFileRef: (path: string | null) => void
 }
 
-// Apply saved theme on load
-const savedTheme = (localStorage.getItem('claude_theme') as ThemeId) || 'catppuccin-mocha'
-applyTheme(savedTheme)
+// Apply saved theme on load, fallback to pure-black
+const savedTheme = (localStorage.getItem('claude_theme') as ThemeId) || 'pure-black'
+// Migrate old theme ids to new ones
+const migratedTheme: ThemeId = ((savedTheme as string) === 'catppuccin-mocha' || (savedTheme as string) === 'ayu-dark')
+  ? 'pure-black'
+  : (savedTheme as string) === 'catppuccin-latte'
+    ? 'clean-light'
+    : savedTheme as ThemeId
+applyTheme(migratedTheme)
 
 export const useUIStore = create<UIStore>((set) => ({
   sidebarWidth: 240,
@@ -38,7 +44,7 @@ export const useUIStore = create<UIStore>((set) => ({
   showFileTree: true,
   showChat: true,
   activePanel: 'files',
-  theme: savedTheme,
+  theme: migratedTheme,
   lastCopyContext: null,
   pendingFileRef: null,
 
