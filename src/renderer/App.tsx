@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
-import { Files, Search, Settings, History } from 'lucide-react'
+import { Files, Search, Settings, GitBranch } from 'lucide-react'
 import TitleBar from './components/TitleBar/TitleBar'
 import FileTree from './components/FileTree/FileTree'
 import SearchPanel from './components/Search/SearchPanel'
 import Editor from './components/Editor/Editor'
 import Chat from './components/Chat/Chat'
 import SettingsPanel from './components/Settings/SettingsPanel'
-import SessionPanel from './components/Session/SessionPanel'
+import GitPanel from './components/Git/GitPanel'
 import WelcomePage from './components/Project/WelcomePage'
 import StatusBar from './components/StatusBar/StatusBar'
 import CommandPalette from './components/CommandPalette/CommandPalette'
@@ -25,6 +25,7 @@ export default function App() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [quickOpenOpen, setQuickOpenOpen] = useState(false)
   const [showTerminal, setShowTerminal] = useState(false)
+  const [fileTreeRefreshKey, setFileTreeRefreshKey] = useState(0)
   const t = useT()
 
   const showWelcome = openFiles.length === 0 && !rootPath
@@ -91,11 +92,9 @@ export default function App() {
     { id: 'toggle-chat', label: t.cmdToggleChat, category: t.catView, shortcut: 'Ctrl+J', action: () => toggleChat() },
     { id: 'show-explorer', label: t.cmdShowExplorer, category: t.catView, action: () => setActivePanel('files') },
     { id: 'show-search', label: t.cmdShowSearch, category: t.catView, action: () => setActivePanel('search') },
-    { id: 'show-sessions', label: t.cmdShowSessions, category: t.catView, action: () => setActivePanel('sessions') },
     { id: 'show-settings', label: t.cmdShowSettings, category: t.catView, action: () => setActivePanel('settings') },
-    { id: 'theme-mocha', label: t.cmdThemeMocha, category: t.catTheme, action: () => setTheme('catppuccin-mocha') },
-    { id: 'theme-latte', label: t.cmdThemeLatte, category: t.catTheme, action: () => setTheme('catppuccin-latte') },
-    { id: 'theme-ayu', label: t.cmdThemeAyu, category: t.catTheme, action: () => setTheme('ayu-dark') },
+    { id: 'theme-dark', label: t.cmdThemeMocha, category: t.catTheme, action: () => setTheme('pure-black') },
+    { id: 'theme-light', label: t.cmdThemeLatte, category: t.catTheme, action: () => setTheme('clean-light') },
     { id: 'clear-chat', label: t.cmdClearChat, category: t.catChat, action: () => {
       const store = useChatStore.getState()
       const tabId = store.activeTabId
@@ -134,6 +133,44 @@ export default function App() {
     if (connectionMode === 'server' && serverClient.isInitialized) {
       serverClient.disconnect().then(() => { serverClient.initialize(rootPath) })
     }
+
+    // Start file watcher for external changes
+    if (api?.fs?.watch) {
+      api.fs.watch(rootPath)
+    }
+
+    // Listen for external file changes
+    let unsubscribe: (() => void) | null = null
+    if (api?.fs?.onChanged) {
+      unsubscribe = api.fs.onChanged((data: { type: string; path: string }) => {
+        const { type, path: changedPath } = data
+        console.log('[fs:changed]', type, changedPath)
+        if (type === 'change') {
+          // If the changed file is currently open, reload its content
+          const store = useFileStore.getState()
+          const isOpen = store.openFiles.some(f => f.path === changedPath)
+          if (isOpen) {
+            api.fs.readFile(changedPath).then((result: any) => {
+              if (result?.success) {
+                store.applyExternalEdit(changedPath, result.content)
+              }
+            })
+          }
+        } else if (type === 'unlink') {
+          // File deleted externally → close its tab if open
+          useFileStore.getState().closeFile(changedPath)
+          setFileTreeRefreshKey(k => k + 1)
+        } else {
+          // add / addDir / unlinkDir → refresh the file tree
+          setFileTreeRefreshKey(k => k + 1)
+        }
+      })
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe()
+      if (api?.fs?.unwatch) api.fs.unwatch()
+    }
   }, [rootPath])
 
   const handleOpenFolder = useCallback(async () => {
@@ -171,11 +208,11 @@ export default function App() {
             <Search size={20} />
           </button>
           <button
-            className={`${styles.activityBtn} ${activePanel === 'sessions' ? styles.activityActive : ''}`}
-            onClick={() => setActivePanel('sessions')}
-            title="Sessions"
+            className={`${styles.activityBtn} ${activePanel === 'git' ? styles.activityActive : ''}`}
+            onClick={() => setActivePanel('git')}
+            title="Source Control"
           >
-            <History size={20} />
+            <GitBranch size={20} />
           </button>
           <div className={styles.activitySpacer} />
           <button
@@ -194,11 +231,11 @@ export default function App() {
               <>
                 <Panel defaultSize={18} minSize={12} maxSize={35} id="sidebar">
                   <div className={styles.sidebar}>
-                    {activePanel === 'files' && <FileTree />}
+                    {activePanel === 'files' && <FileTree refreshKey={fileTreeRefreshKey} />}
                     {activePanel === 'search' && (
                       <SearchPanel rootPath={rootPath || ''} />
                     )}
-                    {activePanel === 'sessions' && <SessionPanel />}
+                    {activePanel === 'git' && <GitPanel rootPath={rootPath || ''} />}
                     {activePanel === 'settings' && <SettingsPanel />}
                   </div>
                 </Panel>
