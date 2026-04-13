@@ -1,6 +1,7 @@
 import { memo, useMemo, useState } from 'react'
-import { Bot, Terminal, FileEdit, Search, Globe, Zap, ChevronDown, ChevronRight, CheckCircle, Loader } from 'lucide-react'
+import { Bot, Terminal, FileEdit, Search, Globe, Zap, ChevronDown, ChevronRight, CheckCircle, Loader, FilePlus, FileX } from 'lucide-react'
 import type { ChatMessage, ContentSegment, InlineToolCall } from '../../store'
+import { useFileStore } from '../../store'
 import Markdown from '../Markdown/Markdown'
 import DiffViewer from '../DiffViewer/DiffViewer'
 import styles from './Message.module.css'
@@ -11,7 +12,7 @@ const TOOL_META: Record<string, { icon: React.ReactNode; color: string; label: s
   execute_command: { icon: <Terminal size={11} />, color: '#f9e2af', label: 'Bash' },
   bash:           { icon: <Terminal size={11} />, color: '#f9e2af', label: 'Bash' },
   read_file:      { icon: <FileEdit size={11} />, color: '#89b4fa', label: 'Read' },
-  write_file:     { icon: <FileEdit size={11} />, color: '#a6e3a1', label: 'Write' },
+  write_file:     { icon: <FilePlus size={11} />, color: '#a6e3a1', label: 'Write' },
   edit_file:      { icon: <FileEdit size={11} />, color: '#a6e3a1', label: 'Edit' },
   list_files:     { icon: <Search size={11} />,   color: '#cba6f7', label: 'List' },
   glob:           { icon: <Search size={11} />,   color: '#cba6f7', label: 'Glob' },
@@ -36,11 +37,20 @@ function InlineToolCallCard({ tc }: { tc: InlineToolCall }) {
   const [expanded, setExpanded] = useState(tc.status === 'running')
   const meta = getToolMeta(tc.name)
   const summary = getInputSummary(tc.input)
+  const pendingDiffs = useFileStore(s => s.pendingDiffs)
+  const acceptPendingDiff = useFileStore(s => s.acceptPendingDiff)
+  const rejectPendingDiff = useFileStore(s => s.rejectPendingDiff)
 
   // Collapse when done
   if (!expanded && tc.status === 'running') {
     setExpanded(true)
   }
+
+  const isFileTool = tc.name === 'write_file' || tc.name === 'edit_file'
+  const filePath = tc.input.path as string | undefined
+  const pendingDiff = isFileTool && filePath
+    ? pendingDiffs.find(d => d.filePath.endsWith(filePath.replace(/\\/g, '/')) || d.filePath === filePath)
+    : undefined
 
   return (
     <div className={styles.inlineTool}>
@@ -63,15 +73,34 @@ function InlineToolCallCard({ tc }: { tc: InlineToolCall }) {
       </div>
       {expanded && (
         <div className={styles.inlineToolBody}>
-          {meta.label === 'Bash' ? (
+          {isFileTool && pendingDiff ? (
+            <div>
+              <DiffViewer diff={pendingDiff} />
+              {tc.status === 'done' && (
+                <div className={styles.diffActions}>
+                  <button
+                    className={styles.diffAcceptBtn}
+                    onClick={() => acceptPendingDiff(pendingDiff.filePath)}
+                  >Keep</button>
+                  <button
+                    className={styles.diffRejectBtn}
+                    onClick={() => rejectPendingDiff(pendingDiff.filePath)}
+                  >Undo</button>
+                </div>
+              )}
+            </div>
+          ) : meta.label === 'Bash' ? (
             <pre className={styles.inlineTerminal}>$ {tc.input.command as string || ''}</pre>
           ) : (
             <pre className={styles.inlineToolCode}>{JSON.stringify(tc.input, null, 2)}</pre>
           )}
-          {tc.result && (
+          {tc.result && !isFileTool && (
             <pre className={styles.inlineToolResult}>
               {tc.result.length > 500 ? tc.result.slice(0, 500) + '…' : tc.result}
             </pre>
+          )}
+          {tc.result && isFileTool && (
+            <div className={styles.inlineToolResultSmall}>{tc.result}</div>
           )}
         </div>
       )}
