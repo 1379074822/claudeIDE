@@ -71,8 +71,8 @@ export function truncatePath(path: string, maxLen = 40): string {
 }
 
 export function diffLines(oldText: string, newText: string): Array<{ type: '+' | '-' | ' '; text: string }> {
-  const oldLines = oldText.split('\n')
-  const newLines = newText.split('\n')
+  const oldLines = (oldText ?? '').split('\n')
+  const newLines = (newText ?? '').split('\n')
   const result: Array<{ type: '+' | '-' | ' '; text: string }> = []
 
   // Simple line-by-line diff (LCS-based would be better but this works for display)
