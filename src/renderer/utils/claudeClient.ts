@@ -168,7 +168,7 @@ export class ClaudeClient {
     const assistantMsgId = generateId()
     chatStore.addMessage({
       id: assistantMsgId, role: 'assistant', content: '',
-      timestamp: Date.now(), isStreaming: true, inlineToolCalls: [],
+      timestamp: Date.now(), isStreaming: true,
     })
     chatStore.setStreaming(true, assistantMsgId)
 
@@ -337,21 +337,32 @@ export class ClaudeClient {
         }
         case 'write_file': {
           const resolved = resolvePath(input.path as string)
-          const r = await api.fs.writeFile(resolved, input.content as string)
-          if (r.success) useFileStore.getState().applyExternalEdit(resolved, input.content as string)
-          return r.success ? 'File written successfully' : `Error: ${r.error}`
+          // Read existing content for diff (empty if new file)
+          let oldContent = ''
+          try {
+            const existing = await api.fs.readFile(resolved)
+            if (existing.success) oldContent = existing.content as string
+          } catch {}
+          const newContent = input.content as string
+          const type = oldContent === '' ? 'create' : 'edit'
+          useFileStore.getState().addPendingDiff({ filePath: resolved, oldContent, newContent, type })
+          const added = newContent.split('\n').length
+          const removed = oldContent.split('\n').length
+          return type === 'create'
+            ? `Staged new file for review (+${added} lines)`
+            : `Staged edits for review (+${Math.max(0, added - removed)} / -${Math.max(0, removed - added)} lines)`
         }
         case 'edit_file': {
           const resolved = resolvePath(input.path as string)
           const rr = await api.fs.readFile(resolved)
           if (!rr.success) return `Error reading: ${rr.error}`
           let content = rr.content as string
+          const oldContent = content
           const edits = input.edits as Array<{ oldText: string; newText: string }>
           for (const e of edits) content = content.replace(e.oldText, e.newText)
           if (input.dryRun) return `Preview:\n${content.slice(0, 500)}`
-          const wr = await api.fs.writeFile(resolved, content)
-          if (wr.success) useFileStore.getState().applyExternalEdit(resolved, content)
-          return wr.success ? 'Edits applied successfully' : `Error: ${wr.error}`
+          useFileStore.getState().addPendingDiff({ filePath: resolved, oldContent, newContent: content, type: 'edit' })
+          return 'Staged edits for review'
         }
         case 'list_files': {
           const r = await api.fs.readDir(resolvePath(input.path as string))
