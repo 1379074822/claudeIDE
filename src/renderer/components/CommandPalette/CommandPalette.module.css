@@ -15,8 +15,8 @@
 .palette {
   width: 520px;
   max-height: 400px;
-  background: var(--bg-overlay, #11111b);
-  border: 1px solid var(--border-hover, #45475a);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-hover);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
@@ -29,11 +29,11 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border, #313244);
+  border-bottom: 1px solid var(--border);
 }
 
 .searchIcon {
-  color: var(--text-muted, #6c7086);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -43,11 +43,11 @@
   border: none;
   outline: none;
   font-size: 14px;
-  color: var(--text, #cdd6f4);
+  color: var(--text);
 }
 
 .input::placeholder {
-  color: var(--text-faint, #45475a);
+  color: var(--bg-subtle);
 }
 
 .list {
@@ -60,7 +60,7 @@
   padding: 16px;
   text-align: center;
   font-size: 12px;
-  color: var(--text-faint, #45475a);
+  color: var(--bg-subtle);
 }
 
 .item {
@@ -74,16 +74,16 @@
 }
 
 .item:hover {
-  background: var(--bg-muted, #313244);
+  background: var(--bg-muted);
 }
 
 .itemActive {
-  background: var(--accent-bg, rgba(203,166,247,0.1));
+  background: var(--accent-bg);
 }
 
 .itemCategory {
   font-size: 11px;
-  color: var(--accent, #cba6f7);
+  color: var(--accent);
   font-weight: 600;
   min-width: 60px;
 }
@@ -91,14 +91,14 @@
 .itemLabel {
   flex: 1;
   font-size: 13px;
-  color: var(--text, #cdd6f4);
+  color: var(--text);
 }
 
 .itemShortcut {
   font-size: 11px;
-  color: var(--text-disabled, #585b70);
+  color: var(--text-disabled);
   font-family: monospace;
   padding: 1px 6px;
-  background: var(--bg-muted, #313244);
+  background: var(--bg-muted);
   border-radius: 3px;
 }
