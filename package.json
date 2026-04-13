@@ -17,6 +17,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "axios": "^1.14.0",
+    "chokidar": "^5.0.0",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.400.0",
     "monaco-editor": "^0.52.0",
@@ -43,6 +44,9 @@
     "electron-builder": "^24.0.0",
     "electron-icon-builder": "^2.0.1",
     "node-pty": "^1.1.0",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.5",
+    "to-ico": "^1.1.5",
     "typescript": "^5.5.0",
     "vite": "^5.4.0",
     "wait-on": "^7.2.0"
@@ -59,7 +63,8 @@
       "src/preload/**/*"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "public/icon.ico"
     },
     "mac": {
       "target": "dmg"
