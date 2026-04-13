@@ -4,17 +4,12 @@
   justify-content: space-between;
   height: 22px;
   padding: 0 8px;
-  background: var(--accent, #cba6f7);
-  color: var(--bg-overlay, #11111b);
+  background: var(--bg-overlay);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
   font-size: 11px;
   flex-shrink: 0;
   user-select: none;
-}
-
-/* Light theme adjustment */
-[data-theme-type="light"] .statusBar {
-  background: var(--accent);
-  color: #fff;
 }
 
 .left, .right {
@@ -34,4 +29,5 @@
 
 .item:hover {
   opacity: 1;
+  color: var(--text-secondary);
 }
