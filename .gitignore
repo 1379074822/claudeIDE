@@ -4,3 +4,6 @@ dist-electron/
 *.log
 .DS_Store
 .idea/package-lock.json
+package-lock.json
+.idea/
+build/
