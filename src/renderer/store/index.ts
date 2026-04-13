@@ -1,7 +1,7 @@
 // Unified store exports
 // All stores are now in separate files for better organization
 
-export { useFileStore, type FileEntry, type OpenFile } from './fileStore'
+export { useFileStore, type FileEntry, type OpenFile, type PendingDiff } from './fileStore'
 export { useChatStore, type ChatMessage, type FileDiff, type InlineToolCall, type ContentSegment, type ChatTab } from './chatStore'
 export { useToolStore, type ToolCallEntry } from './toolStore'
 export { useModelStore, type ModelProfile } from './modelStore'
