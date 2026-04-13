@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Square, Bot, ImagePlus, X as XIcon, ChevronDown, Wifi, WifiOff, Server, Plus } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { Send, Square, Bot, ImagePlus, X as XIcon, ChevronDown, Wifi, WifiOff, Server, Plus, RotateCcw, Pencil } from 'lucide-react'
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso'
 import { useChatStore, useModelStore, useSessionStore, usePermissionStore, useToolStore, useFileStore, useUIStore, useT, type ChatMessage } from '../../store'
 import { claudeClient } from '../../utils/claudeClient'
@@ -109,7 +109,7 @@ function ModelPicker({ activeId, onSelect }: { activeId: string; onSelect: (id: 
 // ============================================================
 
 export default function Chat() {
-  const { rootPath } = useFileStore()
+  const { rootPath, pendingDiffs, acceptAllPendingDiffs, rejectPendingDiff, setActiveFile } = useFileStore()
   const t = useT()
 
   // Mode labels derived from translations
@@ -146,10 +146,23 @@ export default function Chat() {
   const insertRefChipRef = useRef<((path: string, lines?: string) => void) | null>(null)
 
   // Multi-tab store
-  const { tabs, activeTabId, createTab, closeTab, setActiveTab } = useChatStore()
-  const activeTab = tabs.find(t => t.id === activeTabId)
+  const { tabs, activeTabId, createTab, closeTab, setActiveTab, truncateMessages, truncateHistory } = useChatStore()
+  const activeTab = useChatStore(s => s.tabs.find(t => t.id === s.activeTabId))
   const messages = activeTab?.messages ?? []
   const isStreaming = activeTab?.isStreaming ?? false
+
+  // ── 功能1：输入框历史记录 ──
+  const inputHistoryRef = useRef<string[]>([])
+  const historyIndexRef = useRef(-1)
+
+  // ── 功能2：Token 用量估算 ──
+  const estimatedTokens = useMemo(() => {
+    if (!activeTab) return 0
+    const historyText = activeTab.conversationHistory
+      .map(h => typeof h.content === 'string' ? h.content : JSON.stringify(h.content))
+      .join('')
+    return Math.round(historyText.length / 4)
+  }, [activeTab?.conversationHistory])
 
   const { clearToolCalls } = useToolStore()
   const { models, defaultApiKey, defaultBaseURL, activeModelId, setActiveModel, getActiveModel } = useModelStore()
@@ -438,6 +451,12 @@ export default function Chat() {
     setPendingImages([])
     editorBoxRef.current?.focus()
 
+    // 记录到历史
+    if (finalText) {
+      inputHistoryRef.current = [finalText, ...inputHistoryRef.current.filter(h => h !== finalText)].slice(0, 50)
+      historyIndexRef.current = -1
+    }
+
     // Auto-name tab with first user message
     const store = useChatStore.getState()
     const currentTab = store.tabs.find(t => t.id === store.activeTabId)
@@ -469,12 +488,121 @@ export default function Chat() {
     }
   }, [input, pendingImages, isStreaming, isReady, mode, connectionMode, defaultApiKey, defaultBaseURL, getEditorText])
 
+  const setEditorText = useCallback((text: string) => {
+    if (!editorBoxRef.current) return
+    editorBoxRef.current.innerText = text
+    setInput(text)
+    // 光标移到末尾
+    const range = document.createRange()
+    const sel = window.getSelection()
+    range.selectNodeContents(editorBoxRef.current)
+    range.collapse(false)
+    sel?.removeAllRanges()
+    sel?.addRange(range)
+  }, [])
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
+      return
+    }
+
+    // 历史导航：只在无多行内容时拦截上下键
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !e.shiftKey) {
+      const currentText = getEditorText()
+      if (!currentText.includes('\n')) {
+        const history = inputHistoryRef.current
+        if (history.length === 0) return
+        if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          const nextIndex = Math.min(historyIndexRef.current + 1, history.length - 1)
+          historyIndexRef.current = nextIndex
+          setEditorText(history[nextIndex])
+        } else {
+          e.preventDefault()
+          const nextIndex = historyIndexRef.current - 1
+          historyIndexRef.current = nextIndex
+          if (nextIndex < 0) {
+            setEditorText('')
+          } else {
+            setEditorText(history[nextIndex])
+          }
+        }
+      }
     }
   }
+
+  // ── 功能3：重新生成 & 编辑用户消息 ──
+  const handleRegenerate = useCallback(async () => {
+    const store = useChatStore.getState()
+    const tab = store.tabs.find(t => t.id === store.activeTabId)
+    if (!tab || isStreaming) return
+
+    // 找最后一条 assistant 消息
+    const lastAssistantIdx = [...tab.messages].map((m, i) => ({ m, i })).filter(({ m }) => m.role === 'assistant').pop()
+    if (!lastAssistantIdx) return
+
+    // 删除最后一条 assistant 消息
+    truncateMessages(tab.id, lastAssistantIdx.i)
+
+    // 删除 conversationHistory 里最后一条 assistant 条目
+    const lastHistAssistantIdx = [...tab.conversationHistory].map((h, i) => ({ h, i })).filter(({ h }) => h.role === 'assistant').pop()
+    if (lastHistAssistantIdx) {
+      truncateHistory(tab.id, lastHistAssistantIdx.i)
+    }
+
+    // 找最后一条 user 消息内容
+    const lastUserMsg = [...tab.messages.slice(0, lastAssistantIdx.i)].filter(m => m.role === 'user').pop()
+    if (!lastUserMsg) return
+
+    const userText = typeof lastUserMsg.content === 'string' ? lastUserMsg.content : ''
+    const imgs = lastUserMsg.images ?? []
+
+    try {
+      if (connectionMode === 'server') {
+        await serverClient.sendMessage(userText, imgs)
+      } else {
+        const m = getActiveModel()
+        if (m) {
+          const apiKey = m.apiKey || defaultApiKey
+          const baseURL = m.baseURL || defaultBaseURL
+          claudeClient.setConfig(apiKey, baseURL, m.modelId)
+        }
+        await claudeClient.sendMessage(userText, imgs, MODE_SYSTEM_PROMPTS[mode])
+      }
+    } catch (err: any) {
+      useChatStore.getState().addMessage({
+        id: Math.random().toString(36).slice(2),
+        role: 'system',
+        content: `Error: ${err.message}`,
+        timestamp: Date.now(),
+      })
+    }
+  }, [isStreaming, connectionMode, defaultApiKey, defaultBaseURL, mode, truncateMessages, truncateHistory])
+
+  const handleEditMessage = useCallback((msgIndex: number) => {
+    const store = useChatStore.getState()
+    const tab = store.tabs.find(t => t.id === store.activeTabId)
+    if (!tab) return
+
+    const msg = tab.messages[msgIndex]
+    if (!msg || msg.role !== 'user') return
+
+    const text = typeof msg.content === 'string' ? msg.content : ''
+
+    // 填入输入框
+    setEditorText(text)
+    editorBoxRef.current?.focus()
+
+    // 删除这条消息及之后所有消息
+    truncateMessages(tab.id, msgIndex)
+
+    // 删除 conversationHistory 里对应位置之后的条目
+    // 计算这条 user 消息在 conversationHistory 里的位置：统计前面有多少条消息对应 history 条目
+    const userMsgsBefore = tab.messages.slice(0, msgIndex).filter(m => m.role === 'user' || m.role === 'assistant').length
+    truncateHistory(tab.id, userMsgsBefore)
+  }, [setEditorText, truncateMessages, truncateHistory])
 
   const handleInterrupt = () => {
     if (connectionMode === 'server') {
@@ -581,7 +709,38 @@ export default function Chat() {
           <Virtuoso
             ref={virtuosoRef}
             data={messages}
-            itemContent={(_, msg) => <Message key={msg.id} msg={msg} />}
+            itemContent={(index, msg) => {
+              const isLastAssistant = msg.role === 'assistant' && index === messages.map((m, i) => ({ m, i })).filter(({ m }) => m.role === 'assistant').pop()?.i
+              const isUserMsg = msg.role === 'user'
+              return (
+                <div className={styles.msgWrapper}>
+                  <Message key={msg.id} msg={msg} />
+                  {isLastAssistant && !isStreaming && (
+                    <div className={styles.msgActions}>
+                      <button
+                        className={styles.msgActionBtn}
+                        onClick={handleRegenerate}
+                        title="重新生成"
+                      >
+                        <RotateCcw size={12} />
+                        <span>重新生成</span>
+                      </button>
+                    </div>
+                  )}
+                  {isUserMsg && (
+                    <div className={`${styles.msgActions} ${styles.msgActionsUser}`}>
+                      <button
+                        className={styles.msgActionBtn}
+                        onClick={() => handleEditMessage(index)}
+                        title="编辑消息"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            }}
             followOutput="smooth"
             style={{ flex: 1 }}
           />
@@ -599,6 +758,39 @@ export default function Chat() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pending diffs summary bar */}
+      {pendingDiffs.length > 0 && (
+        <div className={styles.pendingDiffBar}>
+          <span className={styles.pendingDiffFiles}>
+            {pendingDiffs.length === 1
+              ? pendingDiffs[0].filePath.replace(/\\/g, '/').split('/').pop()
+              : `${pendingDiffs.length} Files`}
+          </span>
+          <div className={styles.pendingDiffActions}>
+            {pendingDiffs.length > 1 && (
+              <button
+                className={styles.pendingKeepAllBtn}
+                onClick={() => acceptAllPendingDiffs()}
+              >Keep All</button>
+            )}
+            {pendingDiffs.map(d => {
+              const name = d.filePath.replace(/\\/g, '/').split('/').pop() || d.filePath
+              return (
+                <span key={d.filePath} className={styles.pendingDiffFile}>
+                  <button
+                    className={styles.pendingFileBtn}
+                    onClick={() => setActiveFile(d.filePath)}
+                    title={d.filePath}
+                  >{name}</button>
+                  <button className={styles.pendingAcceptBtn} onClick={() => useFileStore.getState().acceptPendingDiff(d.filePath)}>✓</button>
+                  <button className={styles.pendingRejectBtn} onClick={() => rejectPendingDiff(d.filePath)}>✕</button>
+                </span>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -649,6 +841,11 @@ export default function Chat() {
                   </div>
                 )}
               </div>
+              {estimatedTokens > 0 && (
+                <span className={styles.tokenCount} title="预估已用 token 数">
+                  ~{estimatedTokens > 1000 ? `${(estimatedTokens/1000).toFixed(1)}k` : estimatedTokens} tokens
+                </span>
+              )}
             </div>
 
             {/* Center: Model name */}
