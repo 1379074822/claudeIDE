@@ -146,6 +146,6 @@ export const en = {
   ctxRename: 'Rename',
   ctxDelete: 'Delete',
   ctxSendToChat: 'Send to Chat',
-} as const
+}
 
 export type TranslationKey = keyof typeof en
