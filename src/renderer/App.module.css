@@ -22,8 +22,8 @@
 /* Activity Bar */
 .activityBar {
   width: 44px;
-  background: #11111b;
-  border-right: 1px solid #313244;
+  background: var(--bg-overlay);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,17 +39,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #45475a;
+  color: var(--text-muted);
   transition: color 0.15s, background 0.15s;
 }
 
 .activityBtn:hover {
-  color: #a6adc8;
-  background: #313244;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
 }
 
 .activityActive {
-  color: #cba6f7 !important;
+  color: var(--accent) !important;
 }
 
 .activitySpacer {
@@ -79,20 +79,20 @@
   left: 1px;
   width: 2px;
   height: 100%;
-  background: #313244;
+  background: var(--border);
   transition: background 0.15s;
 }
 
 .resizeHandle:hover::after,
 .resizeHandle[data-resize-handle-active]::after {
-  background: #cba6f7;
+  background: var(--accent);
 }
 
 /* Sidebar */
 .sidebar {
   height: 100%;
-  background: #181825;
-  border-right: 1px solid #313244;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -113,19 +113,19 @@
 /* Panels */
 .searchPanel, .panelHeader {
   padding: 8px 12px;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid var(--border);
 }
 
 .panelHeader {
   font-size: 11px;
   font-weight: 600;
-  color: #a6adc8;
+  color: var(--text-secondary);
   letter-spacing: 0.8px;
 }
 
 .panelHint {
   font-size: 12px;
-  color: #45475a;
+  color: var(--text-faint);
   padding: 16px 12px;
   text-align: center;
 }
@@ -134,7 +134,7 @@
   height: 240px;
   min-height: 120px;
   max-height: 50vh;
-  border-top: 2px solid #313244;
-  background: #11111b;
+  border-top: 2px solid var(--border);
+  background: var(--bg-overlay);
   flex-shrink: 0;
 }
