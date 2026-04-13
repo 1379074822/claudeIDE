@@ -1,0 +1,1 @@
+const fs=require("fs");const p="D:/claudeIde/claude-ide/README.md";
