@@ -10,7 +10,11 @@ interface Props {
   rootPath: string
 }
 
-async function collectFiles(api: any, dir: string, collected: string[] = []): Promise<string[]> {
+// 模块级缓存（跨组件实例）
+let fileCache: { rootPath: string; files: string[]; ts: number } = { rootPath: '', files: [], ts: 0 }
+const CACHE_TTL = 30_000 // 30秒内不重新扫描
+
+async function collectFiles(api: ElectronAPI, dir: string, collected: string[] = []): Promise<string[]> {
   const res = await api.fs.readDir(dir)
   if (!res.success) return collected
   for (const entry of res.entries) {
@@ -29,6 +33,7 @@ async function collectFiles(api: any, dir: string, collected: string[] = []): Pr
 export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
   const [query, setQuery] = useState('')
   const [files, setFiles] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -38,9 +43,23 @@ export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
     if (!isOpen || !rootPath) return
     setQuery('')
     setSelected(0)
+
+    // 缓存命中
+    if (fileCache.rootPath === rootPath && Date.now() - fileCache.ts < CACHE_TTL) {
+      setFiles(fileCache.files)
+      setLoading(false)
+      return
+    }
+
     const api = (window as any).electronAPI
     if (!api) return
-    collectFiles(api, rootPath).then(setFiles)
+    setFiles([]) // 清空旧数据，触发"扫描中"提示
+    setLoading(true)
+    collectFiles(api, rootPath).then(result => {
+      fileCache = { rootPath, files: result, ts: Date.now() }
+      setFiles(result)
+      setLoading(false)
+    })
   }, [isOpen, rootPath])
 
   useEffect(() => {
@@ -67,7 +86,7 @@ export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
     if (existing) {
       store.setActiveFile(filePath)
     } else {
-      api.fs.readFile(filePath).then((result: any) => {
+      api.fs.readFile(filePath).then((result) => {
         if (!result?.success) return
         const name = filePath.replace(/\\/g, '/').split('/').pop() || filePath
         store.openFile({
@@ -97,6 +116,13 @@ export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
 
   if (!isOpen) return null
 
+  // 状态提示文字
+  const emptyMessage = loading
+    ? '扫描项目文件...'
+    : files.length > 0
+    ? '无匹配文件'
+    : '无文件'
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.palette} onClick={e => e.stopPropagation()}>
@@ -105,7 +131,7 @@ export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
           <input
             ref={inputRef}
             className={styles.input}
-            placeholder="输入文件名快速打开..."
+            placeholder={files.length > 0 ? `输入文件名快速打开... (共 ${files.length} 个文件)` : '输入文件名快速打开...'}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -113,7 +139,7 @@ export default function QuickOpen({ isOpen, onClose, rootPath }: Props) {
         </div>
         <div className={styles.list} ref={listRef}>
           {filtered.length === 0 && (
-            <div className={styles.empty}>{files.length === 0 ? '加载文件列表中...' : '无匹配文件'}</div>
+            <div className={styles.empty}>{emptyMessage}</div>
           )}
           {filtered.map((f, i) => {
             const name = f.replace(/\\/g, '/').split('/').pop() || f
