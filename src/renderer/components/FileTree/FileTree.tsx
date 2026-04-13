@@ -96,7 +96,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogState) {
           <button className={styles.promptCancel} onClick={onCancel}>取消</button>
           <button
             className={styles.promptOk}
-            style={{ background: '#f38ba8', color: '#1e1e2e' }}
+            style={{ background: 'var(--error)', color: 'var(--bg-base)' }}
             onClick={onConfirm}
             autoFocus
           >
@@ -115,31 +115,48 @@ interface FileNodeProps {
   onSelect: (entry: FileEntry) => void
   selectedPath: string | null
   onContextMenu: (e: React.MouseEvent, entry: FileEntry) => void
+  refreshKey: number
+  gitStatus: Record<string, string>
 }
 
-function FileNode({ entry, depth, onSelect, selectedPath, onContextMenu }: FileNodeProps) {
+function FileNode({ entry, depth, onSelect, selectedPath, onContextMenu, refreshKey, gitStatus }: FileNodeProps) {
   const [expanded, setExpanded] = useState(false)
   const [children, setChildren] = useState<FileEntry[]>([])
   const [loading, setLoading] = useState(false)
+
+  const loadChildren = useCallback(async () => {
+    const api = (window as any).electronAPI
+    const result = await api?.fs.readDir(entry.path)
+    if (result?.success) setChildren(result.entries)
+  }, [entry.path])
 
   const handleClick = useCallback(async () => {
     if (entry.isDirectory) {
       if (!expanded && children.length === 0) {
         setLoading(true)
-        const api = (window as any).electronAPI
-        const result = await api?.fs.readDir(entry.path)
-        if (result?.success) setChildren(result.entries)
+        await loadChildren()
         setLoading(false)
       }
       setExpanded(v => !v)
     } else {
       onSelect(entry)
     }
-  }, [entry, expanded, children, onSelect])
+  }, [entry, expanded, children, onSelect, loadChildren])
+
+  // Refresh children when refreshKey changes and this dir is already expanded
+  useEffect(() => {
+    if (expanded) loadChildren()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey])
 
   const isSelected = selectedPath === entry.path
   const lang = !entry.isDirectory ? getLanguageFromPath(entry.name) : ''
   const iconColor = FILE_ICON_COLORS[lang] || '#a6adc8'
+
+  // Git status: check exact path, or for dirs check if any child has a status
+  const gitSt = gitStatus[entry.path]
+  const GIT_COLORS: Record<string, string> = { M: '#e5c07b', A: '#98c379', U: '#61afef', D: '#e06c75', R: '#c678dd' }
+  const gitColor = gitSt ? GIT_COLORS[gitSt] || '#a6adc8' : undefined
 
   return (
     <div className={styles.node}>
@@ -166,7 +183,8 @@ function FileNode({ entry, depth, onSelect, selectedPath, onContextMenu }: FileN
             : getFileIcon(entry.name)
           }
         </span>
-        <span className={styles.name}>{entry.name}</span>
+        <span className={styles.name} style={gitColor ? { color: gitColor } : undefined}>{entry.name}</span>
+        {gitSt && <span className={styles.gitBadge} style={{ color: gitColor }}>{gitSt}</span>}
         {loading && <span className={styles.loading}>…</span>}
       </div>
 
@@ -180,6 +198,8 @@ function FileNode({ entry, depth, onSelect, selectedPath, onContextMenu }: FileN
               onSelect={onSelect}
               selectedPath={selectedPath}
               onContextMenu={onContextMenu}
+              refreshKey={refreshKey}
+              gitStatus={gitStatus}
             />
           ))}
         </div>
@@ -189,7 +209,11 @@ function FileNode({ entry, depth, onSelect, selectedPath, onContextMenu }: FileN
 }
 
 // ── Main FileTree ─────────────────────────────────────────────────────────
-export default function FileTree() {
+interface FileTreeProps {
+  refreshKey?: number
+}
+
+export default function FileTree({ refreshKey: externalRefreshKey = 0 }: FileTreeProps) {
   const t = useT()
   const { rootPath, fileTree, setFileTree, openFile, activeFilePath } = useFileStore()
   const { setPendingFileRef } = useUIStore()
@@ -197,10 +221,8 @@ export default function FileTree() {
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null)
   const [promptState, setPromptState] = useState<InlinePromptState | null>(null)
   const [confirmState, setConfirmState] = useState<ConfirmDialogState | null>(null)
+  const [gitStatus, setGitStatus] = useState<Record<string, string>>({})
   const menuRef = useRef<HTMLDivElement>(null)
-  // Keep a stable ref to the current ctxMenu entry for use in the callback
-  const ctxMenuRef = useRef<ContextMenuState | null>(null)
-  ctxMenuRef.current = ctxMenu
 
   const loadRootDir = useCallback(async () => {
     if (!rootPath) return
@@ -209,7 +231,23 @@ export default function FileTree() {
     if (result?.success) setFileTree(result.entries)
   }, [rootPath, setFileTree])
 
-  useEffect(() => { loadRootDir() }, [loadRootDir, refreshKey])
+  const loadGitStatus = useCallback(async () => {
+    if (!rootPath) return
+    const api = (window as any).electronAPI
+    const result = await api?.git?.status(rootPath)
+    if (result?.success) {
+      // Keys from git are relative paths — build absolute path map
+      const absMap: Record<string, string> = {}
+      for (const [rel, st] of Object.entries(result.statusMap as Record<string, string>)) {
+        const abs = rootPath + (rootPath.endsWith('\\') || rootPath.endsWith('/') ? '' : '\\') + rel
+        absMap[abs] = st
+      }
+      setGitStatus(absMap)
+    }
+  }, [rootPath])
+
+  useEffect(() => { loadRootDir() }, [loadRootDir, refreshKey, externalRefreshKey])
+  useEffect(() => { loadGitStatus() }, [loadGitStatus, refreshKey, externalRefreshKey])
 
   // Clamp menu to viewport
   useEffect(() => {
@@ -221,12 +259,23 @@ export default function FileTree() {
     if (x !== ctxMenu.x || y !== ctxMenu.y) setCtxMenu(prev => prev ? { ...prev, x, y } : null)
   }, [ctxMenu])
 
-  // Close on any mousedown outside the menu (captures Monaco clicks too)
+  // Close menu on outside click — use pointerdown on document (non-capture)
+  // so it fires AFTER the menu item's onMouseDown has a chance to set state
   useEffect(() => {
     if (!ctxMenu) return
-    const handler = () => setCtxMenu(null)
-    document.addEventListener('mousedown', handler, true)
-    return () => document.removeEventListener('mousedown', handler, true)
+    const handler = (e: PointerEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return
+      setCtxMenu(null)
+    }
+    // Use setTimeout so this listener is added AFTER the current event cycle
+    // (prevents immediately closing on the same right-click that opened the menu)
+    const id = setTimeout(() => {
+      document.addEventListener('pointerdown', handler)
+    }, 0)
+    return () => {
+      clearTimeout(id)
+      document.removeEventListener('pointerdown', handler)
+    }
   }, [ctxMenu])
 
   const handleSelect = useCallback(async (entry: FileEntry) => {
@@ -268,11 +317,7 @@ export default function FileTree() {
       })
     }), [])
 
-  const ctxActions = useCallback(async (action: string) => {
-    // Read entry from ref so we always have the latest value even after closeMenu
-    const current = ctxMenuRef.current
-    if (!current) return
-    const { entry } = current
+  const ctxActions = useCallback(async (action: string, entry: FileEntry) => {
     const api = (window as any).electronAPI
 
     // Close the menu first
@@ -305,7 +350,9 @@ export default function FileTree() {
         const name = await showPrompt(t.ctxNewFile, '')
         if (!name) break
         const sep = dirPath.includes('\\') ? '\\' : '/'
-        await api?.fs.writeFile(dirPath + sep + name, '')
+        const newFilePath = dirPath + sep + name
+        const r = await api.fs.writeFile(newFilePath, '')
+        if (r?.success === false) { alert('创建文件失败: ' + (r.error || '')); break }
         setRefreshKey(k => k + 1)
         break
       }
@@ -315,7 +362,8 @@ export default function FileTree() {
         const name = await showPrompt(t.ctxNewFolder, '')
         if (!name) break
         const sep = dirPath.includes('\\') ? '\\' : '/'
-        await api?.fs.mkdir(dirPath + sep + name)
+        const r = await api.fs.mkdir(dirPath + sep + name)
+        if (r?.success === false) { alert('创建文件夹失败: ' + (r.error || '')); break }
         setRefreshKey(k => k + 1)
         break
       }
@@ -325,7 +373,8 @@ export default function FileTree() {
         if (!newName || newName === entry.name) break
         const dir = entry.path.replace(/[\\/][^\\/]+$/, '')
         const sep = dir.includes('\\') ? '\\' : '/'
-        await api?.fs.rename(entry.path, dir + sep + newName)
+        const r = await api.fs.rename(entry.path, dir + sep + newName)
+        if (r?.success === false) { alert('重命名失败: ' + (r.error || '')); break }
         setRefreshKey(k => k + 1)
         break
       }
@@ -393,6 +442,8 @@ export default function FileTree() {
             onSelect={handleSelect}
             selectedPath={activeFilePath}
             onContextMenu={handleContextMenu}
+            refreshKey={refreshKey + externalRefreshKey}
+            gitStatus={gitStatus}
           />
         ))}
       </div>
@@ -409,26 +460,27 @@ export default function FileTree() {
             ref={menuRef}
             className={styles.contextMenu}
             style={{ left: ctxMenu.x, top: ctxMenu.y }}
+            onPointerDown={e => e.stopPropagation()}
             onMouseDown={e => e.stopPropagation()}
           >
             {!ctxMenu.entry.isDirectory && (
-              <div className={styles.ctxItem} onClick={() => ctxActions('open')}>{t.ctxOpenFile}</div>
+              <div className={styles.ctxItem} onClick={() => ctxActions('open', ctxMenu.entry)}>{t.ctxOpenFile}</div>
             )}
-            <div className={styles.ctxItem} onClick={() => ctxActions('copyPath')}>{t.ctxCopyPath}</div>
-            <div className={styles.ctxItem} onClick={() => ctxActions('copyRelPath')}>{t.ctxCopyRelPath}</div>
-            <div className={styles.ctxItem} onClick={() => ctxActions('reveal')}>{t.ctxRevealExplorer}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('copyPath', ctxMenu.entry)}>{t.ctxCopyPath}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('copyRelPath', ctxMenu.entry)}>{t.ctxCopyRelPath}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('reveal', ctxMenu.entry)}>{t.ctxRevealExplorer}</div>
             <div className={styles.ctxDivider} />
-            <div className={styles.ctxItem} onClick={() => ctxActions('newFile')}>{t.ctxNewFile}</div>
-            <div className={styles.ctxItem} onClick={() => ctxActions('newFolder')}>{t.ctxNewFolder}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('newFile', ctxMenu.entry)}>{t.ctxNewFile}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('newFolder', ctxMenu.entry)}>{t.ctxNewFolder}</div>
             {ctxMenu.entry.path !== rootPath && (
-              <div className={styles.ctxItem} onClick={() => ctxActions('rename')}>{t.ctxRename}</div>
+              <div className={styles.ctxItem} onClick={() => ctxActions('rename', ctxMenu.entry)}>{t.ctxRename}</div>
             )}
             <div className={styles.ctxDivider} />
             {ctxMenu.entry.path !== rootPath && (
-              <div className={`${styles.ctxItem} ${styles.danger}`} onClick={() => ctxActions('delete')}>{t.ctxDelete}</div>
+              <div className={`${styles.ctxItem} ${styles.danger}`} onClick={() => ctxActions('delete', ctxMenu.entry)}>{t.ctxDelete}</div>
             )}
             <div className={styles.ctxDivider} />
-            <div className={styles.ctxItem} onClick={() => ctxActions('sendToChat')}>{t.ctxSendToChat}</div>
+            <div className={styles.ctxItem} onClick={() => ctxActions('sendToChat', ctxMenu.entry)}>{t.ctxSendToChat}</div>
           </div>
         </>
       )}
