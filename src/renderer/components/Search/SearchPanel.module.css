@@ -4,16 +4,16 @@
   height: 100%;
   overflow: hidden;
   font-size: 12px;
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .header {
   padding: 8px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: #a6adc8;
+  color: var(--text-secondary);
   letter-spacing: 0.8px;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -35,20 +35,24 @@
 .inputIcon {
   position: absolute;
   left: 8px;
-  color: #585b70;
+  color: var(--text-disabled);
   pointer-events: none;
 }
 
 .input {
   width: 100%;
-  background: #181825;
-  border: 1px solid #313244;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: #cdd6f4;
+  color: var(--text);
   font-size: 12px;
   padding: 5px 8px;
   outline: none;
   box-sizing: border-box;
+}
+
+.inputError {
+  border-color: var(--error) !important;
 }
 
 .inputRow .input {
@@ -57,11 +61,11 @@
 }
 
 .input:focus {
-  border-color: #cba6f7;
+  border-color: var(--accent);
 }
 
 .input::placeholder {
-  color: #45475a;
+  color: var(--text-muted);
 }
 
 .clearBtn {
@@ -69,7 +73,7 @@
   right: 6px;
   background: none;
   border: none;
-  color: #585b70;
+  color: var(--text-disabled);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -77,12 +81,12 @@
 }
 
 .clearBtn:hover {
-  color: #cdd6f4;
+  color: var(--text);
 }
 
 .searchBtn {
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: var(--accent);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   padding: 5px 10px;
@@ -92,16 +96,16 @@
 }
 
 .searchBtn:disabled {
-  background: #313244;
-  color: #585b70;
+  background: var(--bg-muted);
+  color: var(--text-disabled);
   cursor: default;
 }
 
 .summary {
   padding: 4px 12px;
   font-size: 11px;
-  color: #585b70;
-  border-bottom: 1px solid #313244;
+  color: var(--text-disabled);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -111,7 +115,7 @@
 }
 
 .fileGroup {
-  border-bottom: 1px solid #181825;
+  border-bottom: 1px solid var(--bg-surface);
 }
 
 .fileHeader {
@@ -120,14 +124,14 @@
   gap: 4px;
   padding: 4px 8px;
   cursor: pointer;
-  background: #1e1e2e;
+  background: var(--bg-base);
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .fileHeader:hover {
-  background: #252535;
+  background: var(--bg-muted);
 }
 
 .chevronOpen {
@@ -136,7 +140,7 @@
 
 .fileName {
   flex: 1;
-  color: #89b4fa;
+  color: var(--info);
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -144,15 +148,15 @@
 }
 
 .matchCount {
-  background: #313244;
-  color: #a6adc8;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
   font-size: 10px;
   padding: 0 5px;
   border-radius: 8px;
 }
 
 .matchList {
-  background: #181825;
+  background: var(--bg-surface);
 }
 
 .matchItem {
@@ -161,16 +165,16 @@
   gap: 8px;
   padding: 3px 12px 3px 20px;
   cursor: pointer;
-  color: #a6adc8;
+  color: var(--text-secondary);
 }
 
 .matchItem:hover {
-  background: #252535;
-  color: #cdd6f4;
+  background: var(--bg-muted);
+  color: var(--text);
 }
 
 .lineNum {
-  color: #585b70;
+  color: var(--text-disabled);
   font-size: 11px;
   min-width: 28px;
   text-align: right;
@@ -183,4 +187,109 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.error {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--error);
+  background: var(--error-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.section {
+  padding-bottom: 4px;
+}
+
+.sectionTitle {
+  padding: 6px 12px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.fileNameMatch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.fileNameMatch:hover {
+  background: var(--bg-muted);
+  color: var(--text);
+}
+
+.fileNameMatch svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.fileNamePath {
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  text-align: right;
+}
+
+/* ── Toggle row (case / regex) ─────────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toggleBtn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.toggleBtn:hover {
+  color: var(--text);
+  border-color: var(--text-secondary);
+}
+
+.toggleActive {
+  background: var(--accent-bg, rgba(139, 180, 248, 0.15));
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.toggleLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.regexError {
+  font-size: 10px;
+  color: var(--error);
+  padding: 2px 4px;
+  background: var(--error-bg, rgba(243, 139, 168, 0.1));
+  border-radius: 3px;
+}
+
+/* ── Match highlight ───────────────────────────────── */
+.highlight {
+  background: rgba(249, 226, 175, 0.35);
+  color: #f9e2af;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
 }
